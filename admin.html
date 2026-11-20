@@ -28,7 +28,7 @@
           <h1 class="text-xl md:text-2xl font-black tracking-wide text-white leading-tight">
             ASTRA DAIHATSU <span class="text-red-500">CITRA RAYA</span>
           </h1>
-          <p class="text-slate-400 text-sm mt-0.5">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
+          <p class="text-slate-400 text-sm mt-0.5">Panel Kontrol Proses Service, QC, Kasir & Cuci Kendaraan</p>
         </div>
       </div>
       <a href="index.html" target="_blank" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-red-600/20 shrink-0 transition">
@@ -102,9 +102,10 @@
       container.innerHTML = data.map(item => `
         <div class="border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#080c17]">
           <div>
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 flex-wrap">
               <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-base">${item.no_polisi}</span>
               <span class="bg-red-500/15 text-red-400 border border-red-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">${item.tipe_mobil}</span>
+              ${item.status_pkb === 'Sudah Bayar' ? '<span class="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">✓ LUNAS</span>' : ''}
             </div>
             <p class="text-sm text-slate-400 mt-1.5">Mekanik: <b class="text-slate-200">${item.mekanik}</b> • <span class="text-amber-400 font-semibold">${item.stall}</span></p>
           </div>
@@ -113,16 +114,17 @@
             <select onchange="updateStatus('${item.id}', this.value)" class="bg-[#161e2e] border border-slate-700 text-white p-2 rounded-xl text-sm font-semibold focus:outline-none">
               <option value="Walk In Proses" ${item.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In Proses (Mekanik)</option>
               <option value="Confirm" ${item.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC Kepala Regu)</option>
-              <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Siap Kasir)</option>
+              <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Panggil Kasir)</option>
+              <option value="Sudah Bayar" ${item.status_pkb === 'Sudah Bayar' ? 'selected' : ''}>4. Sudah Bayar (Lunas / Tunggu Cuci)</option>
             </select>
 
-            <button onclick="toggleCuci('${item.id}',${!item.cuci_selesai})" 
+            <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
               class="px-3.5 py-2 rounded-xl text-sm font-bold border transition ${item.cuci_selesai ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'}">
               ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
             </button>
 
             <button onclick="hapusUnit('${item.id}')" class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl text-sm font-bold hover:bg-rose-500/25 transition">
-              Selesai / Hapus
+              Serah Terima / Hapus
             </button>
           </div>
         </div>
@@ -167,7 +169,7 @@
     }
 
     async function hapusUnit(id) {
-      if (confirm('Hapus unit ini dari layar monitor (sudah dibayar)?')) {
+      if (confirm('Unit sudah diserahkan ke pelanggan dan hapus dari layar monitor?')) {
         await db.from('pkb_service').delete().eq('id', id);
         loadAdminData();
       }

@@ -107,21 +107,21 @@
     <div class="bg-gradient-to-br from-[#0f232e] to-[#111624] border border-cyan-500/25 rounded-2xl p-4 flex items-center justify-between">
       <div>
         <div class="text-[11px] font-extrabold text-cyan-400 uppercase tracking-wide">CUCI KENDARAAN</div>
-        <div class="text-xs text-slate-400 mt-0.5">Proses Cuci Berlangsung</div>
+        <div id="statCuciSub" class="text-xs text-slate-400 mt-0.5">Proses Cuci Berlangsung</div>
       </div>
       <div id="statCuci" class="text-3xl font-black text-white">0</div>
     </div>
 
     <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/25 rounded-2xl p-4 flex items-center justify-between col-span-2 sm:col-span-1">
       <div>
-        <div class="text-[11px] font-extrabold text-emerald-400 uppercase tracking-wide">FINAL BILLED</div>
-        <div class="text-xs text-slate-400 mt-0.5">Siap Pembayaran Kasir</div>
+        <div class="text-[11px] font-extrabold text-emerald-400 uppercase tracking-wide">FINAL BILLED / SIAP</div>
+        <div id="statKasirSub" class="text-xs text-slate-400 mt-0.5">Siap Kasir / Serah Terima</div>
       </div>
       <div id="statKasir" class="text-3xl font-black text-white">0</div>
     </div>
   </section>
 
-  <!-- Banner Panggilan Kasir Aktif -->
+  <!-- Banner Panggilan Kasir & Serah Terima Aktif -->
   <div id="callBanner" class="hidden mx-6 my-2 max-w-7xl lg:mx-auto w-auto bg-emerald-600/95 border border-emerald-400 text-white px-6 py-3 rounded-2xl text-center font-bold text-base md:text-lg tracking-wide animate-pulse shadow-lg">
     🔔 <span id="callBannerText"></span>
   </div>
@@ -135,7 +135,7 @@
       <span><b class="text-blue-400">1. Walk In Proses:</b> Pengerjaan Mekanik</span>
       <span><b class="text-amber-400">2. Confirm:</b> QC Kepala Regu</span>
       <span><b class="text-cyan-400">3. Cuci Kendaraan:</b> Proses Cuci</span>
-      <span><b class="text-emerald-400">4. Final Billed:</b> Siap Pembayaran di Kasir</span>
+      <span><b class="text-emerald-400">4. Final Billed / Lunas:</b> Kasir & Siap Serah Terima</span>
     </div>
     <span class="text-slate-500">ASTRA DAIHATSU CITRA RAYA • Real-Time Monitor</span>
   </footer>
@@ -149,7 +149,8 @@
     let currentTheme = '1';
     let audioEnabled = false;
     let isFirstLoad = true;
-    const announcedIds = new Set();
+    const announcedBilledIds = new Set();
+    const announcedHandoverIds = new Set();
     const speechQueue = [];
     let isSpeaking = false;
 
@@ -212,8 +213,8 @@
       return plate.toUpperCase().split('').map(ch => (ch === ' ' ? ', ' : ch + ' ')).join('');
     }
 
-    function queueAnnouncement(vehicle) {
-      speechQueue.push(vehicle);
+    function queueAnnouncement(vehicle, type) {
+      speechQueue.push({ vehicle, type });
       processSpeechQueue();
     }
 
@@ -221,18 +222,28 @@
       if (isSpeaking || speechQueue.length === 0) return;
       isSpeaking = true;
 
-      const v = speechQueue.shift();
+      const { vehicle: v, type } = speechQueue.shift();
       const banner = document.getElementById('callBanner');
       const bannerText = document.getElementById('callBannerText');
+      const spelledPlate = formatPlateForSpeech(v.no_polisi);
 
-      bannerText.textContent = `Kendaraan telah selesai service, No Polisi ${v.no_polisi}, ditunggu kehadirannya di kasir untuk melakukan proses pembayaran.`;
+      let displayMsg = '';
+      let speechMsg = '';
+
+      if (type === 'handover') {
+        displayMsg = `Kendaraan No Polisi ${v.no_polisi} (LUNAS) telah selesai dicuci, silakan menuju area penyerahan kendaraan.`;
+        speechMsg = `Kendaraan dengan nomor polisi, ${spelledPlate}, telah selesai dicuci, silakan menuju area penyerahan kendaraan.`;
+      } else {
+        displayMsg = `Kendaraan telah selesai service, No Polisi ${v.no_polisi}, ditunggu kehadirannya di kasir untuk melakukan proses pembayaran.`;
+        speechMsg = `Kendaraan telah selesai servis, nomor polisi, ${spelledPlate}, ditunggu kehadirannya di kasir untuk melakukan proses pembayaran.`;
+      }
+
+      bannerText.textContent = displayMsg;
       banner.classList.remove('hidden');
 
       if (audioEnabled && 'speechSynthesis' in window) {
         await playChime();
-        const spelledPlate = formatPlateForSpeech(v.no_polisi);
-        const text = `Kendaraan telah selesai servis, nomor polisi, ${spelledPlate}, ditunggu kehadirannya di kasir untuk melakukan proses pembayaran.`;
-        const utterance = new SpeechSynthesisUtterance(text);
+        const utterance = new SpeechSynthesisUtterance(speechMsg);
         utterance.lang = 'id-ID';
         utterance.rate = 0.92;
         utterance.onend = () => {
@@ -245,23 +256,68 @@
       }
     }
 
+    // Logika 4 tahap termasuk status 'Sudah Bayar' yang masih menunggu cuci
     function getStageInfo(v) {
+      const isPaid = v.status_pkb === 'Sudah Bayar';
+
       if (v.status_pkb === 'Walk In Proses') {
-        return { step: 1, pct: 25, label: 'Pekerjaan Mekanik', sub: `${v.mekanik || 'Mekanik'} (${v.stall || 'Stall'})`, badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30', isFinished: false };
+        return {
+          step: 1, pct: 25, isPaid: false, isFinished: false,
+          label: 'Pekerjaan Mekanik',
+          sub: `${v.mekanik || 'Mekanik'} (${v.stall || 'Stall'})`,
+          badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+          trackTag: ''
+        };
       }
       if (v.status_pkb === 'Confirm') {
-        return { step: 2, pct: 55, label: 'QC Kepala Regu', sub: 'Pemeriksaan Kualitas', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30', isFinished: false };
+        return {
+          step: 2, pct: 55, isPaid: false, isFinished: false,
+          label: 'QC Kepala Regu',
+          sub: 'Pemeriksaan Kualitas',
+          badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+          trackTag: ''
+        };
       }
-      if (v.status_pkb === 'Final Billed' && !v.cuci_selesai) {
-        return { step: 3, pct: 80, label: 'Cuci Kendaraan', sub: 'Proses Cuci Berlangsung', badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30', isFinished: false };
+      if ((v.status_pkb === 'Final Billed' || isPaid) && !v.cuci_selesai) {
+        if (isPaid) {
+          return {
+            step: 3, pct: 85, isPaid: true, isFinished: false,
+            label: 'Proses Cuci',
+            sub: 'Pembayaran Lunas • Menunggu Selesai Cuci',
+            badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+            trackTag: 'LUNAS'
+          };
+        }
+        return {
+          step: 3, pct: 80, isPaid: false, isFinished: false,
+          label: 'Cuci Kendaraan',
+          sub: 'Proses Cuci • Silakan ke Kasir',
+          badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+          trackTag: ''
+        };
       }
-      return { step: 4, pct: 100, label: 'Siap di Kasir', sub: 'Siap Pembayaran Kasir', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', isFinished: true };
+      if (isPaid && v.cuci_selesai) {
+        return {
+          step: 4, pct: 100, isPaid: true, isFinished: true,
+          label: 'Siap Serah Terima',
+          sub: 'Lunas & Selesai Cuci • Siap Diserahkan',
+          badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+          trackTag: 'SIAP SERAH TERIMA'
+        };
+      }
+      return {
+        step: 4, pct: 100, isPaid: false, isFinished: true,
+        label: 'Siap di Kasir',
+        sub: 'Siap Pembayaran Kasir',
+        badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+        trackTag: 'KE KASIR'
+      };
     }
 
     // Pemetaan file gambar mobil di folder ./public/ sesuai nama file aktual
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=3'; // Cache buster baru agar browser mengabaikan gambar lama
+      const v = '?v=3';
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
       if (m.includes('xenia')) {
@@ -309,7 +365,6 @@
       }
     }
 
-    // Menampilkan gambar langsung dari folder public + fallback siluet SVG jika gambar belum ada
     function renderCarVisual(model, isMoving, sizeClass = 'h-10 md:h-12') {
       const candidates = getCarImageCandidates(model);
       const m = (model || '').toLowerCase();
@@ -345,6 +400,14 @@
         </div>`;
     }
 
+    function renderDualBadges(st) {
+      return `
+        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+          ${st.isPaid ? '<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+          <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label} • ${st.sub}</span>
+        </div>`;
+    }
+
     function updateThemeButtons() {
       document.querySelectorAll('.theme-btn').forEach(btn => {
         if (btn.dataset.theme === currentTheme) {
@@ -364,10 +427,16 @@
     function renderDashboard() {
       const container = document.getElementById('dashboardContainer');
 
+      const cuciList = vehicles.filter(v => getStageInfo(v).step === 3);
+      const paidWaitingWashCount = cuciList.filter(v => getStageInfo(v).isPaid).length;
+
       document.getElementById('statTotal').textContent = vehicles.length;
       document.getElementById('statMekanik').textContent = vehicles.filter(v => getStageInfo(v).step === 1).length;
       document.getElementById('statQc').textContent = vehicles.filter(v => getStageInfo(v).step === 2).length;
-      document.getElementById('statCuci').textContent = vehicles.filter(v => getStageInfo(v).step === 3).length;
+      document.getElementById('statCuci').textContent = cuciList.length;
+      document.getElementById('statCuciSub').textContent = paidWaitingWashCount > 0
+        ? `${paidWaitingWashCount} Sudah Bayar (Lunas)`
+        : 'Proses Cuci Berlangsung';
       document.getElementById('statKasir').textContent = vehicles.filter(v => getStageInfo(v).step === 4).length;
 
       if (vehicles.length === 0) {
@@ -383,15 +452,15 @@
         container.innerHTML = `<div class="grid ${count > 5 ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-3 w-full max-w-7xl mx-auto">
           ${vehicles.map(v => {
             const st = getStageInfo(v);
-            const leftPos = st.step === 1 ? '8%' : st.step === 2 ? '38%' : st.step === 3 ? '66%' : '84%';
+            const leftPos = st.step === 1 ? '8%' : st.step === 2 ? '38%' : st.step === 3 ? '64%' : '82%';
             return `
-            <div class="bg-[#111726] border border-slate-800/90 rounded-2xl ${padClass} shadow-lg">
-              <div class="flex justify-between items-center mb-2">
+            <div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/90'} rounded-2xl ${padClass} shadow-lg">
+              <div class="flex justify-between items-center mb-2 gap-2 flex-wrap">
                 <div class="flex items-center gap-3">
                   <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-sm md:text-base">${v.no_polisi}</span>
                   <span class="font-bold text-slate-100 text-sm md:text-base">${v.tipe_mobil}</span>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label} • ${st.sub}</span>
+                ${renderDualBadges(st)}
               </div>
               <div class="relative h-16 bg-[#080c17] rounded-xl border border-slate-800/80 px-4 flex items-center overflow-hidden">
                 <div class="w-full border-t-2 border-dashed border-slate-700/80"></div>
@@ -404,7 +473,7 @@
                 <div class="absolute transition-all duration-1000 ease-out flex items-center" style="left: ${leftPos};">
                   ${renderCarVisual(v.tipe_mobil, !st.isFinished, 'h-11 md:h-12')}
                   ${st.step === 3 ? '<span class="wash-bubble text-cyan-300 text-sm -ml-1">🫧</span>' : ''}
-                  ${st.isFinished ? '<span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded ml-1.5">SELESAI</span>' : ''}
+                  ${st.trackTag ? `<span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded ml-1.5 whitespace-nowrap">${st.trackTag}</span>` : ''}
                 </div>
               </div>
             </div>`;
@@ -417,7 +486,7 @@
               <tr>
                 <th class="p-4">No. Polisi</th>
                 <th class="p-4">Unit Daihatsu</th>
-                <th class="p-4">Status Proses</th>
+                <th class="p-4">Status Pembayaran & Proses</th>
                 <th class="p-4">Cuci Kendaraan</th>
                 <th class="p-4">Keterangan</th>
               </tr>
@@ -431,8 +500,13 @@
                     ${renderCarVisual(v.tipe_mobil, false, 'h-8')}
                     <span>${v.tipe_mobil}</span>
                   </td>
-                  <td class="p-4"><span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span></td>
-                  <td class="p-4 text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-cyan-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Belum / Sedang Cuci'}</td>
+                  <td class="p-4">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      ${st.isPaid ? '<span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                      <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                    </div>
+                  </td>
+                  <td class="p-4 text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-cyan-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Sedang Dicuci'}</td>
                   <td class="p-4 text-slate-300 text-xs md:text-sm">${st.sub}</td>
                 </tr>`;
               }).join('')}
@@ -443,8 +517,8 @@
         container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
           ${vehicles.map(v => {
             const st = getStageInfo(v);
-            return `<div class="bg-[#111726] border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4">
-              <div class="flex justify-between items-center">
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 flex flex-col justify-between gap-4">
+              <div class="flex justify-between items-center gap-2">
                 <div class="flex items-center gap-3">
                   ${renderCarVisual(v.tipe_mobil, !st.isFinished, 'h-12')}
                   <div>
@@ -452,7 +526,10 @@
                     <p class="text-red-400 font-bold text-sm">${v.tipe_mobil}</p>
                   </div>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label}</span>
+                <div class="flex flex-col items-end gap-1">
+                  ${st.isPaid ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                  <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label}</span>
+                </div>
               </div>
               <div>
                 <div class="flex justify-between text-xs mb-1.5 text-slate-400">
@@ -471,7 +548,7 @@
           { title: '1. Walk In Proses (Mekanik)', step: 1, accent: 'border-blue-500 text-blue-400' },
           { title: '2. Confirm (QC Ka. Regu)', step: 2, accent: 'border-amber-500 text-amber-400' },
           { title: '3. Cuci Kendaraan', step: 3, accent: 'border-cyan-500 text-cyan-400' },
-          { title: '4. Final Billed (Kasir)', step: 4, accent: 'border-emerald-500 text-emerald-400' }
+          { title: '4. Kasir / Serah Terima', step: 4, accent: 'border-emerald-500 text-emerald-400' }
         ];
         container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 w-full max-w-7xl mx-auto h-full">
           ${cols.map(c => {
@@ -482,14 +559,20 @@
                 <span class="bg-[#080c17] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">${list.length}</span>
               </div>
               <div class="space-y-2.5">
-                ${list.map(v => `<div class="bg-[#080c17] border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2">
-                  <div>
-                    <div class="font-black text-base text-white">${v.no_polisi}</div>
-                    <div class="text-xs text-red-400 font-semibold">${v.tipe_mobil}</div>
-                    <div class="text-[11px] text-slate-400 mt-1">${v.mekanik} • ${v.stall}</div>
-                  </div>
-                  ${renderCarVisual(v.tipe_mobil, false, 'h-9')}
-                </div>`).join('') || '<p class="text-xs text-slate-600 italic">Kosong</p>'}
+                ${list.map(v => {
+                  const st = getStageInfo(v);
+                  return `<div class="bg-[#080c17] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/80'} p-3 rounded-xl flex items-center justify-between gap-2">
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-black text-base text-white">${v.no_polisi}</span>
+                        ${st.isPaid ? '<span class="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">✓ LUNAS</span>' : ''}
+                      </div>
+                      <div class="text-xs text-red-400 font-semibold">${v.tipe_mobil}</div>
+                      <div class="text-[11px] text-slate-400 mt-1">${st.sub}</div>
+                    </div>
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-9')}
+                  </div>`;
+                }).join('') || '<p class="text-xs text-slate-600 italic">Kosong</p>'}
               </div>
             </div>`;
           }).join('')}
@@ -499,14 +582,17 @@
           ${vehicles.map(v => {
             const st = getStageInfo(v);
             const deg = Math.round((st.pct / 100) * 360);
-            return `<div class="bg-[#111726] border border-slate-800 rounded-2xl p-5 flex items-center justify-between gap-4">
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 flex items-center justify-between gap-4">
               <div class="flex items-center gap-4">
                 <div class="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#ef4444 ${deg}deg, #1e293b 0deg);">
                   <div class="w-11 h-11 md:w-14 md:h-14 bg-[#080c17] rounded-full flex items-center justify-center font-black text-xs md:text-sm">${st.pct}%</div>
                 </div>
                 <div>
                   <div class="font-black text-xl">${v.no_polisi} <span class="text-xs font-normal text-slate-400">(${v.tipe_mobil})</span></div>
-                  <div class="inline-block mt-1 px-2.5 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</div>
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-2.5 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</span>
+                  </div>
                   <p class="text-xs text-slate-400 mt-1">${st.sub}</p>
                 </div>
               </div>
@@ -519,16 +605,19 @@
         const inWork = vehicles.filter(v => getStageInfo(v).step < 3);
         container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
           <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/30 rounded-2xl p-5">
-            <h2 class="text-emerald-400 font-extrabold text-lg mb-3">SIAP KASIR & PROSES CUCI (${ready.length})</h2>
+            <h2 class="text-emerald-400 font-extrabold text-lg mb-3">SIAP KASIR, LUNAS & PROSES CUCI (${ready.length})</h2>
             <div class="space-y-3">
               ${ready.map(v => {
                 const st = getStageInfo(v);
-                return `<div class="bg-[#080c17] border border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                return `<div class="bg-[#080c17] border border-slate-800 p-4 rounded-xl flex justify-between items-center gap-2">
                   <div class="flex items-center gap-3">
                     ${renderCarVisual(v.tipe_mobil, false, 'h-10')}
                     <div><div class="text-xl font-black">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil}</div></div>
                   </div>
-                  <span class="px-3 py-1.5 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                  <div class="flex flex-col items-end gap-1">
+                    ${st.isPaid ? '<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                  </div>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-sm">Belum ada unit selesai servis.</p>'}
             </div>
@@ -557,14 +646,26 @@
       if (!error && data) {
         data.forEach(item => {
           const isFinalBilled = item.status_pkb === 'Final Billed';
+          const isHandoverReady = item.status_pkb === 'Sudah Bayar' && item.cuci_selesai === true;
+
           if (isFirstLoad) {
-            if (isFinalBilled) announcedIds.add(item.id);
+            if (isFinalBilled) announcedBilledIds.add(item.id);
+            if (isHandoverReady) announcedHandoverIds.add(item.id);
           } else {
-            if (isFinalBilled && !announcedIds.has(item.id)) {
-              announcedIds.add(item.id);
-              queueAnnouncement(item);
-            } else if (!isFinalBilled && announcedIds.has(item.id)) {
-              announcedIds.delete(item.id);
+            // 1. Panggilan ke kasir saat status berubah menjadi 'Final Billed'
+            if (isFinalBilled && !announcedBilledIds.has(item.id)) {
+              announcedBilledIds.add(item.id);
+              queueAnnouncement(item, 'billed');
+            } else if (!isFinalBilled && announcedBilledIds.has(item.id)) {
+              announcedBilledIds.delete(item.id);
+            }
+
+            // 2. Panggilan serah terima saat sudah bayar & cuci selesai
+            if (isHandoverReady && !announcedHandoverIds.has(item.id)) {
+              announcedHandoverIds.add(item.id);
+              queueAnnouncement(item, 'handover');
+            } else if (!isHandoverReady && announcedHandoverIds.has(item.id)) {
+              announcedHandoverIds.delete(item.id);
             }
           }
         });
