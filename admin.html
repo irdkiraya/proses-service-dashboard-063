@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin PKB - ASTRA DAIHATSU CITRA RAYA (063)</title>
+  <title>Admin Service - ASTRA DAIHATSU CITRA RAYA (063)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -20,12 +20,11 @@
       </a>
     </div>
 
-    <!-- Form Input PKB Baru -->
+    <!-- Form Input Unit Baru (Hanya No. Polisi, Tipe Mobil, Mekanik, Stall) -->
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
-      <h2 class="font-bold text-lg mb-4 text-slate-700">+ Tambah Unit PKB Baru</h2>
-      <form id="formPkb" class="grid grid-cols-1 md:grid-cols-6 gap-3">
-        <input type="text" id="no_pkb" placeholder="No. PKB (PKB-063-005)" required class="border p-2.5 rounded-lg">
-        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="border p-2.5 rounded-lg uppercase">
+      <h2 class="font-bold text-lg mb-4 text-slate-700">+ Tambah Unit Baru</h2>
+      <form id="formPkb" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="border p-2.5 rounded-lg uppercase font-semibold">
         <select id="tipe_mobil" class="border p-2.5 rounded-lg">
           <option value="All New Xenia">All New Xenia</option>
           <option value="Astra Daihatsu Sigra">Astra Daihatsu Sigra</option>
@@ -64,7 +63,6 @@
             <div class="flex items-center gap-2">
               <span class="font-bold text-lg text-slate-900">${item.no_polisi}</span>
               <span class="bg-red-100 text-red-700 text-xs px-2.5 py-0.5 rounded font-bold">${item.tipe_mobil}</span>
-              <span class="text-xs text-slate-500 font-mono">${item.no_pkb}</span>
             </div>
             <p class="text-sm text-slate-600 mt-1">Mekanik: <b>${item.mekanik}</b> • ${item.stall}</p>
           </div>
@@ -92,7 +90,7 @@
     document.getElementById('formPkb').addEventListener('submit', async (e) => {
       e.preventDefault();
       await db.from('pkb_service').insert([{
-        no_pkb: document.getElementById('no_pkb').value,
+        no_pkb: '-',
         no_polisi: document.getElementById('no_polisi').value.toUpperCase(),
         tipe_mobil: document.getElementById('tipe_mobil').value,
         mekanik: document.getElementById('mekanik').value,

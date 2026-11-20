@@ -30,7 +30,6 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-      <!-- Tombol Aktivasi Audio (Wajib diklik 1x di TV agar browser mengizinkan suara otomatis) -->
       <button id="audioToggleBtn" onclick="toggleAudio()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs md:text-sm px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
         🔇 Aktifkan Suara Panggilan
       </button>
@@ -51,7 +50,7 @@
     </div>
   </header>
 
-  <!-- Banner Panggilan Kasir Aktif (Muncul otomatis saat ada panggilan suara) -->
+  <!-- Banner Panggilan Kasir Aktif -->
   <div id="callBanner" class="hidden bg-emerald-600 text-white px-6 py-3 text-center font-bold text-base md:text-xl tracking-wide animate-pulse shadow-lg">
     🔔 PANGGILAN KASIR: <span id="callBannerText"></span>
   </div>
@@ -79,7 +78,7 @@
     let currentTheme = '1';
     let audioEnabled = false;
     let isFirstLoad = true;
-    const announcedIds = new Set(); // Mencegah panggilan berulang untuk unit yang sama
+    const announcedIds = new Set();
     const speechQueue = [];
     let isSpeaking = false;
 
@@ -87,7 +86,6 @@
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID');
     }, 1000);
 
-    // Fungsi mengaktifkan izin audio pada browser TV
     function toggleAudio() {
       audioEnabled = !audioEnabled;
       const btn = document.getElementById('audioToggleBtn');
@@ -102,7 +100,6 @@
       }
     }
 
-    // Nada Bel 2-Nada (Ting-Tong) sebelum pengumuman suara
     function playChime() {
       return new Promise((resolve) => {
         try {
@@ -112,7 +109,7 @@
           const osc1 = ctx.createOscillator();
           const gain1 = ctx.createGain();
           osc1.type = 'sine';
-          osc1.frequency.setValueAtTime(659.25, now); // Nada E5
+          osc1.frequency.setValueAtTime(659.25, now);
           gain1.gain.setValueAtTime(0.25, now);
           gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
           osc1.connect(gain1);
@@ -123,7 +120,7 @@
           const osc2 = ctx.createOscillator();
           const gain2 = ctx.createGain();
           osc2.type = 'sine';
-          osc2.frequency.setValueAtTime(523.25, now + 0.45); // Nada C5
+          osc2.frequency.setValueAtTime(523.25, now + 0.45);
           gain2.gain.setValueAtTime(0.25, now + 0.45);
           gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
           osc2.connect(gain2);
@@ -138,7 +135,6 @@
       });
     }
 
-    // Format pembacaan plat nomor agar dieja jelas oleh mesin suara (misal: "B 1428 WKR" -> "B, 1 4 2 8, W K R")
     function formatPlateForSpeech(plate) {
       return plate.toUpperCase().split('').map(ch => (ch === ' ' ? ', ' : ch + ' ')).join('');
     }
@@ -166,7 +162,7 @@
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'id-ID';
-        utterance.rate = 0.92; // Kecepatan bicara jelas dan tenang
+        utterance.rate = 0.92;
         utterance.pitch = 1.0;
 
         utterance.onend = () => {
@@ -184,7 +180,6 @@
 
         window.speechSynthesis.speak(utterance);
       } else {
-        // Jika suara belum diaktifkan, tetap tampilkan banner visual selama 6 detik
         setTimeout(() => {
           banner.classList.add('hidden');
           isSpeaking = false;
@@ -250,7 +245,6 @@
                 <div class="flex items-center gap-3">
                   <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded text-sm md:text-base">${v.no_polisi}</span>
                   <span class="font-bold text-slate-200 text-sm md:text-base">${v.tipe_mobil}</span>
-                  <span class="text-xs text-slate-500 font-mono hidden sm:inline">${v.no_pkb}</span>
                 </div>
                 <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label} • ${st.sub}</span>
               </div>
@@ -278,7 +272,6 @@
               <tr>
                 <th class="p-4">No. Polisi</th>
                 <th class="p-4">Unit Daihatsu</th>
-                <th class="p-4">No. PKB</th>
                 <th class="p-4">Status Proses</th>
                 <th class="p-4">Cuci Kendaraan</th>
                 <th class="p-4">Keterangan</th>
@@ -290,7 +283,6 @@
                 return `<tr class="${st.isFinished ? 'bg-emerald-950/30' : ''}">
                   <td class="p-4 font-black text-amber-400 font-mono text-lg">${v.no_polisi}</td>
                   <td class="p-4 font-bold">${v.tipe_mobil}</td>
-                  <td class="p-4 text-slate-400 font-mono text-xs">${v.no_pkb}</td>
                   <td class="p-4"><span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span></td>
                   <td class="p-4 text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-sky-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Belum / Sedang Cuci'}</td>
                   <td class="p-4 text-slate-300 text-xs md:text-sm">${st.sub}</td>
@@ -306,7 +298,6 @@
             return `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4">
               <div class="flex justify-between items-start">
                 <div>
-                  <span class="text-xs font-mono text-slate-400">${v.no_pkb}</span>
                   <h3 class="text-2xl font-black text-white">${v.no_polisi}</h3>
                   <p class="text-red-400 font-bold text-sm">${v.tipe_mobil}</p>
                 </div>
@@ -376,7 +367,7 @@
               ${ready.map(v => {
                 const st = getStageInfo(v);
                 return `<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center">
-                  <div><div class="text-xl font-black">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil} • ${v.no_pkb}</div></div>
+                  <div><div class="text-xl font-black">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil}</div></div>
                   <span class="px-3 py-1.5 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-sm">Belum ada unit selesai servis.</p>'}
@@ -410,7 +401,6 @@
               announcedIds.add(item.id);
               queueAnnouncement(item);
             } else if (!isReady && announcedIds.has(item.id)) {
-              // Reset jika status dikembalikan ke proses sebelumnya
               announcedIds.delete(item.id);
             }
           }
