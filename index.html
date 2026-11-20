@@ -10,137 +10,147 @@
     body { background-color: #080c17; color: #f8fafc; }
     @keyframes spinWheel { 100% { transform: rotate(360deg); } }
     @keyframes driveBounce { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2px); } }
-    @keyframes bubbleFloat { 0% { transform: translateY(0) scale(0.8); opacity: 0.9; } 100% { transform: translateY(-16px) scale(1.2); opacity: 0; } }
+    @keyframes bubbleFloat { 0% { transform: translateY(0) scale(0.8); opacity: 0.9; } 100% { transform: translateY(-14px) scale(1.2); opacity: 0; } }
     .car-moving { animation: driveBounce 0.6s infinite ease-in-out; }
     .wheel-spin { transform-origin: center; animation: spinWheel 0.7s linear infinite; }
     .wash-bubble { animation: bubbleFloat 1.4s infinite ease-out; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans select-none overflow-x-hidden">
+<body class="min-h-screen lg:h-screen flex flex-col font-sans select-none overflow-x-hidden lg:overflow-hidden">
 
   <!-- Elemen Audio Permanen untuk TV Xiaomi / Smart TV -->
   <audio id="ttsAudioPlayer" preload="auto" playsinline></audio>
 
   <!-- Header Sesuai Palet Desain Utama -->
-  <header class="bg-[#0b101d] border-b border-slate-800/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-    <div class="flex items-center gap-4">
-      <div class="bg-white px-3 py-2 rounded-xl shadow flex items-center gap-2.5 shrink-0">
-        <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-8 md:h-9 w-auto object-contain"
+  <header class="bg-[#0b101d] border-b border-slate-800/80 px-5 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
+    <div class="flex items-center gap-3.5">
+      <div class="bg-white px-2.5 py-1.5 rounded-xl shadow flex items-center gap-2 shrink-0">
+        <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-7 md:h-8 w-auto object-contain"
              onerror="this.style.display='none'; document.getElementById('fallbackLogoMonitor').classList.remove('hidden');">
-        <img src="./public/ir-digital.png" alt="IR Digital" class="h-7 md:h-9 w-auto object-contain border-l border-slate-200 pl-2.5"
+        <img src="./public/ir-digital.png" alt="IR Digital" class="h-6 md:h-8 w-auto object-contain border-l border-slate-200 pl-2"
              onerror="this.style.display='none';">
-        <div id="fallbackLogoMonitor" class="hidden bg-red-600 p-2 rounded-lg flex items-center justify-center">
-          <svg viewBox="0 0 64 44" class="h-6 w-auto">
+        <div id="fallbackLogoMonitor" class="hidden bg-red-600 p-1.5 rounded-lg flex items-center justify-center">
+          <svg viewBox="0 0 64 44" class="h-5 w-auto">
             <ellipse cx="32" cy="22" rx="28" ry="18" fill="none" stroke="#ffffff" stroke-width="4"/>
             <path d="M14 22 L32 10 L50 22 L32 34 Z" fill="#ffffff"/>
           </svg>
         </div>
       </div>
       <div>
-        <div class="flex items-center gap-3 flex-wrap">
-          <h1 class="text-xl md:text-2xl font-black tracking-wide text-white">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="text-lg md:text-xl font-black tracking-wide text-white leading-none">
             ASTRA DAIHATSU <span class="text-red-500">CITRA RAYA</span>
           </h1>
-          <span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wider">
+          <span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wider">
             LIVE
           </span>
+          <span id="pageIndicator" class="hidden bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+            Halaman 1/1
+          </span>
         </div>
-        <p class="text-slate-400 text-xs md:text-sm font-medium mt-0.5">Informasi Real - Time Proses Service</p>
+        <p class="text-slate-400 text-xs font-medium mt-0.5">Informasi Real - Time Proses Service</p>
       </div>
     </div>
 
-    <div class="flex items-center gap-4">
-      <button id="audioToggleBtn" onclick="toggleAudio()" class="bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 transition">
-        <span id="audioDot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+    <div class="flex items-center gap-3">
+      <button id="audioToggleBtn" onclick="toggleAudio()" class="bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 transition">
+        <span id="audioDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
         <span id="audioLabel">Suara Panggilan: OFF</span>
       </button>
 
-      <a href="admin.html" target="_blank" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs md:text-sm px-4 py-2 rounded-xl shadow-lg shadow-red-600/20 transition">
+      <a href="admin.html" target="_blank" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-lg shadow-red-600/20 transition">
         Kelola Unit
       </a>
 
       <div class="text-right hidden sm:block pl-2 border-l border-slate-800">
-        <div id="clock" class="font-mono text-lg md:text-xl font-black text-white leading-none">00:00:00</div>
-        <div id="dateDisplay" class="text-[11px] text-slate-400 mt-1">Memuat tanggal...</div>
+        <div id="clock" class="font-mono text-base md:text-lg font-black text-white leading-none">00:00:00</div>
+        <div id="dateDisplay" class="text-[10px] text-slate-400 mt-0.5">Memuat tanggal...</div>
       </div>
     </div>
   </header>
 
-  <!-- Bar Pilihan 6 Model Tampilan Monitor -->
-  <section class="px-6 pt-4 pb-2 max-w-7xl w-full mx-auto">
-    <div class="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2.5 flex items-center gap-1.5">
-      <span class="text-red-500">❖</span> PILIH 6 MODEL TAMPILAN MONITOR:
-    </div>
-    <div id="themeButtons" class="flex flex-wrap gap-2">
-      <button onclick="changeTheme('1')" data-theme="1" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">1. Lintasan Mobil</button>
-      <button onclick="changeTheme('2')" data-theme="2" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">2. Digital Board</button>
-      <button onclick="changeTheme('3')" data-theme="3" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">3. Kartu Timeline</button>
-      <button onclick="changeTheme('4')" data-theme="4" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">4. Lajur Bengkel</button>
-      <button onclick="changeTheme('5')" data-theme="5" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">5. Radar Gauge</button>
-      <button onclick="changeTheme('6')" data-theme="6" class="theme-btn px-3.5 py-2 rounded-xl text-xs font-bold transition">6. Split Highlight</button>
-    </div>
-  </section>
-
-  <!-- 5 Kartu Ringkasan KPI -->
-  <section class="px-6 py-3 max-w-7xl w-full mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-    <div class="bg-gradient-to-br from-[#23141d] to-[#121622] border border-red-500/25 rounded-2xl p-4 flex items-center justify-between">
-      <div>
-        <div class="text-[11px] font-extrabold text-red-400 uppercase tracking-wide">UNIT DALAM PROSES</div>
-        <div class="text-xs text-slate-400 mt-0.5">Total Antrean Aktif</div>
+  <!-- Bar Pilihan 6 Model Tampilan Monitor + KPI Ringkas -->
+  <section class="px-5 pt-2.5 pb-1.5 max-w-[1600px] w-full mx-auto shrink-0 flex flex-col gap-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase flex items-center gap-1">
+          <span class="text-red-500">❖</span> TAMPILAN:
+        </span>
+        <div id="themeButtons" class="flex flex-wrap gap-1.5">
+          <button onclick="changeTheme('1')" data-theme="1" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">1. Lintasan Mobil</button>
+          <button onclick="changeTheme('2')" data-theme="2" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">2. Digital Board</button>
+          <button onclick="changeTheme('3')" data-theme="3" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">3. Kartu Timeline</button>
+          <button onclick="changeTheme('4')" data-theme="4" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">4. Lajur Bengkel</button>
+          <button onclick="changeTheme('5')" data-theme="5" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">5. Radar Gauge</button>
+          <button onclick="changeTheme('6')" data-theme="6" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold transition">6. Split Highlight</button>
+        </div>
       </div>
-      <div id="statTotal" class="text-3xl font-black text-white">0</div>
+      <div id="densityBadge" class="text-[11px] font-semibold text-slate-400 bg-[#111726] border border-slate-800 px-2.5 py-0.5 rounded-lg">
+        Mode Tampilan: Otomatis
+      </div>
     </div>
 
-    <div class="bg-gradient-to-br from-[#121c33] to-[#111624] border border-blue-500/25 rounded-2xl p-4 flex items-center justify-between">
-      <div>
-        <div class="text-[11px] font-extrabold text-blue-400 uppercase tracking-wide">WALK IN PROSES</div>
-        <div class="text-xs text-slate-400 mt-0.5">Pengerjaan Mekanik</div>
+    <!-- 5 Kartu Ringkasan KPI -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+      <div class="bg-gradient-to-br from-[#23141d] to-[#121622] border border-red-500/25 rounded-xl px-3.5 py-2 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-extrabold text-red-400 uppercase tracking-wide">UNIT DALAM PROSES</div>
+          <div class="text-[11px] text-slate-400">Total Antrean Aktif</div>
+        </div>
+        <div id="statTotal" class="text-2xl font-black text-white">0</div>
       </div>
-      <div id="statMekanik" class="text-3xl font-black text-white">0</div>
-    </div>
 
-    <div class="bg-gradient-to-br from-[#241e14] to-[#131622] border border-amber-500/25 rounded-2xl p-4 flex items-center justify-between">
-      <div>
-        <div class="text-[11px] font-extrabold text-amber-400 uppercase tracking-wide">CONFIRM (QC)</div>
-        <div class="text-xs text-slate-400 mt-0.5">QC Kepala Regu</div>
+      <div class="bg-gradient-to-br from-[#121c33] to-[#111624] border border-blue-500/25 rounded-xl px-3.5 py-2 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-extrabold text-blue-400 uppercase tracking-wide">WALK IN PROSES</div>
+          <div class="text-[11px] text-slate-400">Pengerjaan Mekanik</div>
+        </div>
+        <div id="statMekanik" class="text-2xl font-black text-white">0</div>
       </div>
-      <div id="statQc" class="text-3xl font-black text-white">0</div>
-    </div>
 
-    <div class="bg-gradient-to-br from-[#0f232e] to-[#111624] border border-cyan-500/25 rounded-2xl p-4 flex items-center justify-between">
-      <div>
-        <div class="text-[11px] font-extrabold text-cyan-400 uppercase tracking-wide">CUCI KENDARAAN</div>
-        <div id="statCuciSub" class="text-xs text-slate-400 mt-0.5">Proses Cuci Berlangsung</div>
+      <div class="bg-gradient-to-br from-[#241e14] to-[#131622] border border-amber-500/25 rounded-xl px-3.5 py-2 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-extrabold text-amber-400 uppercase tracking-wide">CONFIRM (QC)</div>
+          <div class="text-[11px] text-slate-400">QC Kepala Regu</div>
+        </div>
+        <div id="statQc" class="text-2xl font-black text-white">0</div>
       </div>
-      <div id="statCuci" class="text-3xl font-black text-white">0</div>
-    </div>
 
-    <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/25 rounded-2xl p-4 flex items-center justify-between col-span-2 sm:col-span-1">
-      <div>
-        <div class="text-[11px] font-extrabold text-emerald-400 uppercase tracking-wide">FINAL BILLED / SIAP</div>
-        <div id="statKasirSub" class="text-xs text-slate-400 mt-0.5">Siap Kasir / Serah Terima</div>
+      <div class="bg-gradient-to-br from-[#0f232e] to-[#111624] border border-cyan-500/25 rounded-xl px-3.5 py-2 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-extrabold text-cyan-400 uppercase tracking-wide">CUCI KENDARAAN</div>
+          <div id="statCuciSub" class="text-[11px] text-slate-400">Proses Cuci Berlangsung</div>
+        </div>
+        <div id="statCuci" class="text-2xl font-black text-white">0</div>
       </div>
-      <div id="statKasir" class="text-3xl font-black text-white">0</div>
+
+      <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/25 rounded-xl px-3.5 py-2 flex items-center justify-between col-span-2 sm:col-span-1">
+        <div>
+          <div class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wide">FINAL BILLED / SIAP</div>
+          <div id="statKasirSub" class="text-[11px] text-slate-400">Siap Kasir / Serah Terima</div>
+        </div>
+        <div id="statKasir" class="text-2xl font-black text-white">0</div>
+      </div>
     </div>
   </section>
 
   <!-- Banner Panggilan Kasir & Serah Terima Aktif -->
-  <div id="callBanner" class="hidden mx-6 my-2 max-w-7xl lg:mx-auto w-auto bg-emerald-600/95 border border-emerald-400 text-white px-6 py-3 rounded-2xl text-center font-bold text-base md:text-lg tracking-wide animate-pulse shadow-lg">
+  <div id="callBanner" class="hidden mx-5 my-1 max-w-[1600px] lg:mx-auto w-auto bg-emerald-600/95 border border-emerald-400 text-white px-5 py-2 rounded-xl text-center font-bold text-sm md:text-base tracking-wide animate-pulse shadow-lg shrink-0">
     🔔 <span id="callBannerText"></span>
   </div>
 
-  <!-- Area Utama Dashboard -->
-  <main id="dashboardContainer" class="flex-1 px-6 py-3 flex flex-col justify-center"></main>
+  <!-- Area Utama Dashboard (Dinamis sampai 15 Baris) -->
+  <main id="dashboardContainer" class="flex-1 px-5 py-2 flex flex-col justify-center overflow-y-auto lg:overflow-hidden"></main>
 
   <!-- Footer -->
-  <footer class="bg-[#0b101d] border-t border-slate-800/80 px-6 py-2.5 text-xs text-slate-400 flex flex-wrap justify-between items-center gap-2">
-    <div class="flex flex-wrap gap-4">
-      <span><b class="text-blue-400">1. Walk In Proses:</b> Pengerjaan Mekanik</span>
-      <span><b class="text-amber-400">2. Confirm:</b> QC Kepala Regu</span>
+  <footer class="bg-[#0b101d] border-t border-slate-800/80 px-5 py-1.5 text-[11px] text-slate-400 flex flex-wrap justify-between items-center gap-2 shrink-0">
+    <div class="flex flex-wrap gap-3">
+      <span><b class="text-blue-400">1. Walk In Proses:</b> Mekanik</span>
+      <span><b class="text-amber-400">2. Confirm:</b> QC Ka. Regu</span>
       <span><b class="text-cyan-400">3. Cuci Kendaraan:</b> Proses Cuci</span>
       <span><b class="text-emerald-400">4. Final Billed / Lunas:</b> Kasir & Siap Serah Terima</span>
     </div>
-    <span class="text-slate-500">ASTRA DAIHATSU CITRA RAYA • Real-Time Monitor</span>
+    <span class="text-slate-500">ASTRA DAIHATSU CITRA RAYA • Real-Time Monitor (Kapasitas 15 Unit/Layar)</span>
   </footer>
 
   <script>
@@ -152,6 +162,9 @@
     let currentTheme = '1';
     let audioEnabled = false;
     let isFirstLoad = true;
+    let currentPage = 0;
+    const MAX_ITEMS_PER_SCREEN = 15;
+
     const announcedBilledIds = new Set();
     const announcedHandoverIds = new Set();
     const speechQueue = [];
@@ -167,6 +180,17 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
+    // Auto-paging jika total kendaraan melebihi 15 unit
+    setInterval(() => {
+      if (vehicles.length > MAX_ITEMS_PER_SCREEN) {
+        const totalPages = Math.ceil(vehicles.length / MAX_ITEMS_PER_SCREEN);
+        currentPage = (currentPage + 1) % totalPages;
+        renderDashboard();
+      } else if (currentPage !== 0) {
+        currentPage = 0;
+      }
+    }, 8000);
+
     function toggleAudio() {
       audioEnabled = !audioEnabled;
       const btn = document.getElementById('audioToggleBtn');
@@ -175,19 +199,18 @@
       const player = document.getElementById('ttsAudioPlayer');
 
       if (audioEnabled) {
-        btn.className = 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 transition';
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+        btn.className = 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 transition';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
         label.textContent = 'Suara Panggilan: ON';
 
-        // Buka izin pemutaran audio otomatis di TV Xiaomi saat tombol ON ditekan
         if (player) {
           player.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
           player.play().catch(() => {});
         }
         playChime();
       } else {
-        btn.className = 'bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 transition';
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+        btn.className = 'bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 transition';
+        dot.className = 'w-2 h-2 rounded-full bg-slate-500';
         label.textContent = 'Suara Panggilan: OFF';
         if (player) { player.pause(); player.currentTime = 0; }
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -225,7 +248,6 @@
       return plate.toUpperCase().split('').map(ch => (ch === ' ' ? ', ' : ch + ' ')).join('');
     }
 
-    // Pemecah kalimat menjadi potongan < 180 karakter agar aman diputar oleh Cloud TTS MP3
     function splitTextChunks(text) {
       const parts = text.split(',').map(s => s.trim()).filter(Boolean);
       const chunks = [];
@@ -242,7 +264,6 @@
       return chunks;
     }
 
-    // Pemutar suara MP3 permanen (berjalan di TV Xiaomi tanpa perlu instal TTS Bahasa Indonesia)
     function playCloudAudio(text) {
       return new Promise(async (resolve) => {
         const player = document.getElementById('ttsAudioPlayer');
@@ -267,7 +288,6 @@
             player.play().catch(() => finish(false));
           });
 
-          // Jika jaringan memblokir audio MP3, otomatis gunakan fallback speechSynthesis
           if (!played) {
             await playFallbackSpeech(chunk);
           }
@@ -333,14 +353,13 @@
       }
     }
 
-    // Logika 4 tahap termasuk status 'Sudah Bayar' yang masih menunggu cuci
     function getStageInfo(v) {
       const isPaid = v.status_pkb === 'Sudah Bayar';
 
       if (v.status_pkb === 'Walk In Proses') {
         return {
           step: 1, pct: 25, isPaid: false, isFinished: false,
-          label: 'Pekerjaan Mekanik',
+          label: 'Mekanik',
           sub: `${v.mekanik || 'Mekanik'} (${v.stall || 'Stall'})`,
           badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
           trackTag: ''
@@ -349,7 +368,7 @@
       if (v.status_pkb === 'Confirm') {
         return {
           step: 2, pct: 55, isPaid: false, isFinished: false,
-          label: 'QC Kepala Regu',
+          label: 'QC Ka.Regu',
           sub: 'Pemeriksaan Kualitas',
           badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
           trackTag: ''
@@ -360,15 +379,15 @@
           return {
             step: 3, pct: 85, isPaid: true, isFinished: false,
             label: 'Proses Cuci',
-            sub: 'Pembayaran Lunas • Menunggu Selesai Cuci',
+            sub: 'Lunas • Tunggu Cuci',
             badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
             trackTag: 'LUNAS'
           };
         }
         return {
           step: 3, pct: 80, isPaid: false, isFinished: false,
-          label: 'Cuci Kendaraan',
-          sub: 'Proses Cuci • Silakan ke Kasir',
+          label: 'Cuci',
+          sub: 'Proses Cuci • Ke Kasir',
           badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
           trackTag: ''
         };
@@ -377,56 +396,32 @@
         return {
           step: 4, pct: 100, isPaid: true, isFinished: true,
           label: 'Siap Serah Terima',
-          sub: 'Lunas & Selesai Cuci • Siap Diserahkan',
+          sub: 'Lunas & Selesai Cuci',
           badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
           trackTag: 'SIAP SERAH TERIMA'
         };
       }
       return {
         step: 4, pct: 100, isPaid: false, isFinished: true,
-        label: 'Siap di Kasir',
+        label: 'Siap Kasir',
         sub: 'Siap Pembayaran Kasir',
         badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
         trackTag: 'KE KASIR'
       };
     }
 
-    // Pemetaan file gambar mobil di folder ./public/ sesuai nama file aktual
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
       const v = '?v=3';
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
-      if (m.includes('xenia')) {
-        return toUrls(['XENIA.png', 'XENIA.webp', 'XENIA.PNG']);
-      }
-      if (m.includes('minibus')) {
-        return toUrls([
-          'GRANDMAX MINIBUS (1).png',
-          'GRANDMAX MINIBUS.png',
-          'GRANDMAX MINIBUS (1).webp',
-          'GRANDMAX MINIBUS.webp'
-        ]);
-      }
-      if (m.includes('pick')) {
-        return toUrls([
-          'GRANDMAX PICK UP.png',
-          'GRANDMAX PICK UP.webp',
-          'GRANDMAX PICK UP.PNG'
-        ]);
-      }
-      if (m.includes('sigra')) {
-        return toUrls(['SIGRA.png', 'SIGRA.webp', 'SIGRA.PNG']);
-      }
-      if (m.includes('terios')) {
-        return toUrls(['TERIOS.png', 'TERIOS.webp', 'TERIOS.PNG']);
-      }
-      if (m.includes('luxio')) {
-        return toUrls(['LUXIO.png', 'LUXIO.webp', 'LUXIO.PNG']);
-      }
-      if (m.includes('sirion')) {
-        return toUrls(['SIRION.png', 'SIRION.webp', 'SIRION.PNG']);
-      }
+      if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp', 'XENIA.PNG']);
+      if (m.includes('minibus')) return toUrls(['GRANDMAX MINIBUS (1).png', 'GRANDMAX MINIBUS.png', 'GRANDMAX MINIBUS (1).webp', 'GRANDMAX MINIBUS.webp']);
+      if (m.includes('pick')) return toUrls(['GRANDMAX PICK UP.png', 'GRANDMAX PICK UP.webp', 'GRANDMAX PICK UP.PNG']);
+      if (m.includes('sigra')) return toUrls(['SIGRA.png', 'SIGRA.webp', 'SIGRA.PNG']);
+      if (m.includes('terios')) return toUrls(['TERIOS.png', 'TERIOS.webp', 'TERIOS.PNG']);
+      if (m.includes('luxio')) return toUrls(['LUXIO.png', 'LUXIO.webp', 'LUXIO.PNG']);
+      if (m.includes('sirion')) return toUrls(['SIRION.png', 'SIRION.webp', 'SIRION.PNG']);
       return toUrls(['XENIA.png']);
     }
 
@@ -442,7 +437,7 @@
       }
     }
 
-    function renderCarVisual(model, isMoving, sizeClass = 'h-10 md:h-12') {
+    function renderCarVisual(model, isMoving, sizeClass = 'h-10') {
       const candidates = getCarImageCandidates(model);
       const m = (model || '').toLowerCase();
       const isPickup = m.includes('pick');
@@ -469,7 +464,7 @@
                data-candidates='${JSON.stringify(candidates)}' data-idx="0"
                class="${sizeClass} w-auto object-contain drop-shadow-md"
                onerror="handleCarImgError(this)">
-          <svg viewBox="0 0 120 48" class="hidden w-16 h-8 md:w-20 md:h-9 drop-shadow-md">
+          <svg viewBox="0 0 120 48" class="hidden w-14 h-7 drop-shadow-md">
             <path d="${pathD}" fill="${bodyColor}"/>
             <circle cx="30" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
             <circle cx="90" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
@@ -477,20 +472,21 @@
         </div>`;
     }
 
-    function renderDualBadges(st) {
+    function renderDualBadges(st, isCompact) {
+      const textSize = isCompact ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-0.5';
       return `
-        <div class="flex items-center gap-1.5 flex-wrap justify-end">
-          ${st.isPaid ? '<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-          <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label} • ${st.sub}</span>
+        <div class="flex items-center gap-1 flex-wrap justify-end">
+          ${st.isPaid ? `<span class="${textSize} rounded-full font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>` : ''}
+          <span class="${textSize} rounded-full font-bold border ${st.badge} truncate max-w-[210px]">${st.label} • ${st.sub}</span>
         </div>`;
     }
 
     function updateThemeButtons() {
       document.querySelectorAll('.theme-btn').forEach(btn => {
         if (btn.dataset.theme === currentTheme) {
-          btn.className = 'theme-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-red-600 text-white shadow-lg shadow-red-600/25 transition';
+          btn.className = 'theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-600 text-white shadow-lg shadow-red-600/25 transition';
         } else {
-          btn.className = 'theme-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-[#161e2e] text-slate-300 hover:bg-[#1f293d] border border-slate-800 transition';
+          btn.className = 'theme-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#161e2e] text-slate-300 hover:bg-[#1f293d] border border-slate-800 transition';
         }
       });
     }
@@ -499,6 +495,57 @@
       currentTheme = val;
       updateThemeButtons();
       renderDashboard();
+    }
+
+    // Skala proporsional dinamis berdasarkan jumlah antrean (1 s.d. 15 unit)
+    function getDynamicScale(count) {
+      if (count <= 4) {
+        return {
+          modeLabel: `1 Kolom Lega (${count} Unit)`,
+          trackCols: 'grid-cols-1',
+          cardCols: count <= 2 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2',
+          gap: 'gap-3',
+          cardPad: 'p-3.5',
+          trackHeight: 'h-14',
+          carSize: 'h-11',
+          plateText: 'text-sm md:text-base px-2.5 py-0.5',
+          modelText: 'text-sm md:text-base',
+          tablePad: 'p-3.5',
+          tableText: 'text-sm md:text-base',
+          isCompact: false
+        };
+      }
+      if (count <= 8) {
+        return {
+          modeLabel: `2 Kolom Sedang (${count} Unit)`,
+          trackCols: 'grid-cols-1 lg:grid-cols-2',
+          cardCols: 'grid-cols-1 lg:grid-cols-2',
+          gap: 'gap-2.5',
+          cardPad: 'p-2.5',
+          trackHeight: 'h-11',
+          carSize: 'h-9',
+          plateText: 'text-xs md:text-sm px-2 py-0.5',
+          modelText: 'text-xs md:text-sm',
+          tablePad: 'p-2.5',
+          tableText: 'text-xs md:text-sm',
+          isCompact: true
+        };
+      }
+      // 9 sampai 15 Unit (3 Kolom × 5 Baris = 15 Unit pas di 1 layar TV)
+      return {
+        modeLabel: `3 Kolom Kompak (${count} Unit / Maks 15)`,
+        trackCols: 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3',
+        cardCols: 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3',
+        gap: 'gap-2',
+        cardPad: 'px-3 py-2',
+        trackHeight: 'h-9',
+        carSize: 'h-7',
+        plateText: 'text-xs px-2 py-0.5',
+        modelText: 'text-xs',
+        tablePad: 'px-3 py-1.5',
+        tableText: 'text-xs',
+        isCompact: true
+      };
     }
 
     function renderDashboard() {
@@ -517,103 +564,124 @@
       document.getElementById('statKasir').textContent = vehicles.filter(v => getStageInfo(v).step === 4).length;
 
       if (vehicles.length === 0) {
+        document.getElementById('pageIndicator').classList.add('hidden');
+        document.getElementById('densityBadge').textContent = 'Mode Tampilan: Menunggu Unit';
         container.innerHTML = `<div class="text-center text-slate-500 text-lg py-10">Tidak ada antrean unit dalam proses saat ini.</div>`;
         return;
       }
 
-      const count = vehicles.length;
-      const gridCols = count <= 2 ? 'grid-cols-1' : count <= 6 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3';
-      const padClass = count <= 3 ? 'p-4' : count <= 6 ? 'p-3.5' : 'p-2.5';
+      // Batasi maksimal 15 unit per layar TV, sisanya otomatis berganti halaman
+      const totalPages = Math.ceil(vehicles.length / MAX_ITEMS_PER_SCREEN);
+      if (currentPage >= totalPages) currentPage = 0;
+      const visibleVehicles = vehicles.slice(
+        currentPage * MAX_ITEMS_PER_SCREEN,
+        (currentPage + 1) * MAX_ITEMS_PER_SCREEN
+      );
+
+      const pageBadge = document.getElementById('pageIndicator');
+      if (totalPages > 1) {
+        pageBadge.textContent = `Halaman ${currentPage + 1}/${totalPages}`;
+        pageBadge.classList.remove('hidden');
+      } else {
+        pageBadge.classList.add('hidden');
+      }
+
+      const scale = getDynamicScale(visibleVehicles.length);
+      document.getElementById('densityBadge').textContent = `Tata Letak: ${scale.modeLabel}`;
 
       if (currentTheme === '1') {
-        container.innerHTML = `<div class="grid ${count > 5 ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-3 w-full max-w-7xl mx-auto">
-          ${vehicles.map(v => {
+        container.innerHTML = `<div class="grid ${scale.trackCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+          ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
-            const leftPos = st.step === 1 ? '8%' : st.step === 2 ? '38%' : st.step === 3 ? '64%' : '82%';
+            const leftPos = st.step === 1 ? '6%' : st.step === 2 ? '36%' : st.step === 3 ? '62%' : '80%';
             return `
-            <div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/90'} rounded-2xl ${padClass} shadow-lg">
-              <div class="flex justify-between items-center mb-2 gap-2 flex-wrap">
-                <div class="flex items-center gap-3">
-                  <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-sm md:text-base">${v.no_polisi}</span>
-                  <span class="font-bold text-slate-100 text-sm md:text-base">${v.tipe_mobil}</span>
+            <div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/90'} rounded-xl ${scale.cardPad} shadow-md flex flex-col justify-between">
+              <div class="flex justify-between items-center mb-1.5 gap-1.5">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="bg-white text-slate-950 font-black rounded-md shrink-0 ${scale.plateText}">${v.no_polisi}</span>
+                  <span class="font-bold text-slate-100 truncate ${scale.modelText}">${v.tipe_mobil}</span>
                 </div>
-                ${renderDualBadges(st)}
+                ${renderDualBadges(st, scale.isCompact)}
               </div>
-              <div class="relative h-16 bg-[#080c17] rounded-xl border border-slate-800/80 px-4 flex items-center overflow-hidden">
-                <div class="w-full border-t-2 border-dashed border-slate-700/80"></div>
-                <div class="absolute inset-x-4 flex justify-between text-[10px] font-bold text-slate-500 uppercase pointer-events-none">
+              <div class="relative ${scale.trackHeight} bg-[#080c17] rounded-lg border border-slate-800/80 px-3 flex items-center overflow-hidden">
+                <div class="w-full border-t border-dashed border-slate-700/80"></div>
+                <div class="absolute inset-x-3 flex justify-between text-[9px] font-bold text-slate-500 uppercase pointer-events-none">
                   <span class="${st.step >= 1 ? 'text-blue-400' : ''}">1. Mekanik</span>
-                  <span class="${st.step >= 2 ? 'text-amber-400' : ''}">2. QC Ka.Regu</span>
+                  <span class="${st.step >= 2 ? 'text-amber-400' : ''}">2. QC</span>
                   <span class="${st.step >= 3 ? 'text-cyan-400' : ''}">3. Cuci</span>
-                  <span class="${st.step === 4 ? 'text-emerald-400' : ''}">4. Selesai / Kasir</span>
+                  <span class="${st.step === 4 ? 'text-emerald-400' : ''}">4. Kasir / Selesai</span>
                 </div>
                 <div class="absolute transition-all duration-1000 ease-out flex items-center" style="left: ${leftPos};">
-                  ${renderCarVisual(v.tipe_mobil, !st.isFinished, 'h-11 md:h-12')}
-                  ${st.step === 3 ? '<span class="wash-bubble text-cyan-300 text-sm -ml-1">🫧</span>' : ''}
-                  ${st.trackTag ? `<span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded ml-1.5 whitespace-nowrap">${st.trackTag}</span>` : ''}
+                  ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
+                  ${st.step === 3 ? '<span class="wash-bubble text-cyan-300 text-xs -ml-1">🫧</span>' : ''}
+                  ${st.trackTag ? `<span class="bg-emerald-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded ml-1 whitespace-nowrap">${st.trackTag}</span>` : ''}
                 </div>
               </div>
             </div>`;
           }).join('')}
         </div>`;
       } else if (currentTheme === '2') {
-        container.innerHTML = `<div class="w-full max-w-7xl mx-auto bg-[#111726] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        // Tema Digital Board mendukung hingga 15 baris penuh dalam satu tabel
+        container.innerHTML = `<div class="w-full max-w-[1600px] mx-auto bg-[#111726] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
           <table class="w-full text-left border-collapse">
-            <thead class="bg-[#161e2e] text-slate-300 text-xs uppercase">
+            <thead class="bg-[#161e2e] text-slate-300 text-[11px] uppercase">
               <tr>
-                <th class="p-4">No. Polisi</th>
-                <th class="p-4">Unit Daihatsu</th>
-                <th class="p-4">Status Pembayaran & Proses</th>
-                <th class="p-4">Cuci Kendaraan</th>
-                <th class="p-4">Keterangan</th>
+                <th class="${scale.tablePad}">No.</th>
+                <th class="${scale.tablePad}">No. Polisi</th>
+                <th class="${scale.tablePad}">Unit Daihatsu</th>
+                <th class="${scale.tablePad}">Status Pembayaran & Proses</th>
+                <th class="${scale.tablePad}">Cuci Kendaraan</th>
+                <th class="${scale.tablePad}">Keterangan</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/80 text-sm md:text-base">
-              ${vehicles.map(v => {
+            <tbody class="divide-y divide-slate-800/80 ${scale.tableText}">
+              ${visibleVehicles.map((v, idx) => {
                 const st = getStageInfo(v);
+                const rowNum = currentPage * MAX_ITEMS_PER_SCREEN + idx + 1;
                 return `<tr class="${st.isFinished ? 'bg-emerald-950/25' : ''}">
-                  <td class="p-4 font-black text-red-400 font-mono text-lg">${v.no_polisi}</td>
-                  <td class="p-4 font-bold text-white flex items-center gap-3">
-                    ${renderCarVisual(v.tipe_mobil, false, 'h-8')}
+                  <td class="${scale.tablePad} text-slate-500 font-mono font-bold">${rowNum}</td>
+                  <td class="${scale.tablePad} font-black text-red-400 font-mono">${v.no_polisi}</td>
+                  <td class="${scale.tablePad} font-bold text-white flex items-center gap-2">
+                    ${renderCarVisual(v.tipe_mobil, false, scale.isCompact ? 'h-6' : 'h-8')}
                     <span>${v.tipe_mobil}</span>
                   </td>
-                  <td class="p-4">
+                  <td class="${scale.tablePad}">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      ${st.isPaid ? '<span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                      <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                      ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                      <span class="px-2.5 py-0.5 rounded text-[11px] font-bold border ${st.badge}">${st.label}</span>
                     </div>
                   </td>
-                  <td class="p-4 text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-cyan-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Sedang Dicuci'}</td>
-                  <td class="p-4 text-slate-300 text-xs md:text-sm">${st.sub}</td>
+                  <td class="${scale.tablePad} text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-cyan-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Sedang Dicuci'}</td>
+                  <td class="${scale.tablePad} text-slate-300 text-xs">${st.sub}</td>
                 </tr>`;
               }).join('')}
             </tbody>
           </table>
         </div>`;
       } else if (currentTheme === '3') {
-        container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
-          ${vehicles.map(v => {
+        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+          ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
-            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 flex flex-col justify-between gap-4">
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex flex-col justify-between gap-2">
               <div class="flex justify-between items-center gap-2">
-                <div class="flex items-center gap-3">
-                  ${renderCarVisual(v.tipe_mobil, !st.isFinished, 'h-12')}
-                  <div>
-                    <h3 class="text-2xl font-black text-white">${v.no_polisi}</h3>
-                    <p class="text-red-400 font-bold text-sm">${v.tipe_mobil}</p>
+                <div class="flex items-center gap-2.5 min-w-0">
+                  ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
+                  <div class="min-w-0">
+                    <h3 class="${scale.isCompact ? 'text-base' : 'text-xl'} font-black text-white leading-tight">${v.no_polisi}</h3>
+                    <p class="text-red-400 font-bold text-xs truncate">${v.tipe_mobil}</p>
                   </div>
                 </div>
-                <div class="flex flex-col items-end gap-1">
-                  ${st.isPaid ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                  <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label}</span>
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  ${st.isPaid ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${st.badge}">${st.label}</span>
                 </div>
               </div>
               <div>
-                <div class="flex justify-between text-xs mb-1.5 text-slate-400">
-                  <span>${st.sub}</span>
-                  <span class="font-bold text-white">${st.pct}%</span>
+                <div class="flex justify-between text-[11px] mb-1 text-slate-400">
+                  <span class="truncate">${st.sub}</span>
+                  <span class="font-bold text-white ml-2">${st.pct}%</span>
                 </div>
-                <div class="w-full h-3 bg-[#080c17] rounded-full overflow-hidden">
+                <div class="w-full h-2 bg-[#080c17] rounded-full overflow-hidden">
                   <div class="h-full bg-gradient-to-r from-red-600 to-emerald-400 transition-all duration-700" style="width:${st.pct}%"></div>
                 </div>
               </div>
@@ -622,32 +690,32 @@
         </div>`;
       } else if (currentTheme === '4') {
         const cols = [
-          { title: '1. Walk In Proses (Mekanik)', step: 1, accent: 'border-blue-500 text-blue-400' },
-          { title: '2. Confirm (QC Ka. Regu)', step: 2, accent: 'border-amber-500 text-amber-400' },
+          { title: '1. Walk In Proses', step: 1, accent: 'border-blue-500 text-blue-400' },
+          { title: '2. Confirm (QC)', step: 2, accent: 'border-amber-500 text-amber-400' },
           { title: '3. Cuci Kendaraan', step: 3, accent: 'border-cyan-500 text-cyan-400' },
           { title: '4. Kasir / Serah Terima', step: 4, accent: 'border-emerald-500 text-emerald-400' }
         ];
-        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 w-full max-w-7xl mx-auto h-full">
+        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 w-full max-w-[1600px] mx-auto h-full">
           ${cols.map(c => {
-            const list = vehicles.filter(v => getStageInfo(v).step === c.step);
-            return `<div class="bg-[#111726] border-t-4 ${c.accent} rounded-xl p-4 flex flex-col gap-3">
-              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-sm">${c.title}</h3>
-                <span class="bg-[#080c17] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">${list.length}</span>
+            const list = visibleVehicles.filter(v => getStageInfo(v).step === c.step);
+            return `<div class="bg-[#111726] border-t-4 ${c.accent} rounded-xl p-3 flex flex-col gap-2 overflow-hidden">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                <h3 class="font-bold text-xs md:text-sm">${c.title}</h3>
+                <span class="bg-[#080c17] text-white text-xs px-2 py-0.5 rounded-full font-bold">${list.length}</span>
               </div>
-              <div class="space-y-2.5">
+              <div class="space-y-1.5 overflow-y-auto">
                 ${list.map(v => {
                   const st = getStageInfo(v);
-                  return `<div class="bg-[#080c17] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/80'} p-3 rounded-xl flex items-center justify-between gap-2">
-                    <div>
+                  return `<div class="bg-[#080c17] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/80'} px-2.5 py-2 rounded-lg flex items-center justify-between gap-2">
+                    <div class="min-w-0">
                       <div class="flex items-center gap-1.5">
-                        <span class="font-black text-base text-white">${v.no_polisi}</span>
-                        ${st.isPaid ? '<span class="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">✓ LUNAS</span>' : ''}
+                        <span class="font-black text-sm text-white">${v.no_polisi}</span>
+                        ${st.isPaid ? '<span class="text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">✓ LUNAS</span>' : ''}
                       </div>
-                      <div class="text-xs text-red-400 font-semibold">${v.tipe_mobil}</div>
-                      <div class="text-[11px] text-slate-400 mt-1">${st.sub}</div>
+                      <div class="text-[11px] text-red-400 font-semibold truncate">${v.tipe_mobil}</div>
+                      <div class="text-[10px] text-slate-400 truncate">${st.sub}</div>
                     </div>
-                    ${renderCarVisual(v.tipe_mobil, false, 'h-9')}
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-7')}
                   </div>`;
                 }).join('') || '<p class="text-xs text-slate-600 italic">Kosong</p>'}
               </div>
@@ -655,61 +723,63 @@
           }).join('')}
         </div>`;
       } else if (currentTheme === '5') {
-        container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
-          ${vehicles.map(v => {
+        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+          ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
             const deg = Math.round((st.pct / 100) * 360);
-            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 flex items-center justify-between gap-4">
-              <div class="flex items-center gap-4">
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#ef4444 ${deg}deg, #1e293b 0deg);">
-                  <div class="w-11 h-11 md:w-14 md:h-14 bg-[#080c17] rounded-full flex items-center justify-center font-black text-xs md:text-sm">${st.pct}%</div>
+            const ringOuter = scale.isCompact ? 'w-12 h-12' : 'w-16 h-16';
+            const ringInner = scale.isCompact ? 'w-9 h-9 text-[11px]' : 'w-12 h-12 text-xs';
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="${ringOuter} rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#ef4444 ${deg}deg, #1e293b 0deg);">
+                  <div class="${ringInner} bg-[#080c17] rounded-full flex items-center justify-center font-black">${st.pct}%</div>
                 </div>
-                <div>
-                  <div class="font-black text-xl">${v.no_polisi} <span class="text-xs font-normal text-slate-400">(${v.tipe_mobil})</span></div>
-                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                    <span class="px-2.5 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</span>
+                <div class="min-w-0">
+                  <div class="font-black ${scale.isCompact ? 'text-base' : 'text-lg'} truncate">${v.no_polisi} <span class="text-xs font-normal text-slate-400">(${v.tipe_mobil})</span></div>
+                  <div class="flex items-center gap-1 mt-0.5 flex-wrap">
+                    ${st.isPaid ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${st.badge}">${st.label}</span>
                   </div>
-                  <p class="text-xs text-slate-400 mt-1">${st.sub}</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5 truncate">${st.sub}</p>
                 </div>
               </div>
-              ${renderCarVisual(v.tipe_mobil, !st.isFinished, 'h-11')}
+              ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
             </div>`;
           }).join('')}
         </div>`;
       } else {
-        const ready = vehicles.filter(v => getStageInfo(v).step >= 3);
-        const inWork = vehicles.filter(v => getStageInfo(v).step < 3);
-        container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
-          <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/30 rounded-2xl p-5">
-            <h2 class="text-emerald-400 font-extrabold text-lg mb-3">SIAP KASIR, LUNAS & PROSES CUCI (${ready.length})</h2>
-            <div class="space-y-3">
+        const ready = visibleVehicles.filter(v => getStageInfo(v).step >= 3);
+        const inWork = visibleVehicles.filter(v => getStageInfo(v).step < 3);
+        container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full max-w-[1600px] mx-auto h-full">
+          <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/30 rounded-2xl p-4 overflow-y-auto">
+            <h2 class="text-emerald-400 font-extrabold text-sm md:text-base mb-2.5">SIAP KASIR, LUNAS & PROSES CUCI (${ready.length})</h2>
+            <div class="space-y-2">
               ${ready.map(v => {
                 const st = getStageInfo(v);
-                return `<div class="bg-[#080c17] border border-slate-800 p-4 rounded-xl flex justify-between items-center gap-2">
-                  <div class="flex items-center gap-3">
-                    ${renderCarVisual(v.tipe_mobil, false, 'h-10')}
-                    <div><div class="text-xl font-black">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil}</div></div>
+                return `<div class="bg-[#080c17] border border-slate-800 px-3.5 py-2.5 rounded-xl flex justify-between items-center gap-2">
+                  <div class="flex items-center gap-2.5">
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-8')}
+                    <div><div class="text-base font-black">${v.no_polisi}</div><div class="text-[11px] text-slate-400">${v.tipe_mobil}</div></div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
-                    ${st.isPaid ? '<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                    <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-2.5 py-0.5 rounded text-[11px] font-bold border ${st.badge}">${st.label}</span>
                   </div>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-sm">Belum ada unit selesai servis.</p>'}
             </div>
           </div>
-          <div class="bg-[#111726] border border-slate-800 rounded-2xl p-5">
-            <h2 class="text-blue-400 font-extrabold text-lg mb-3">DALAM PENGERJAAN & QC (${inWork.length})</h2>
-            <div class="space-y-3">
+          <div class="bg-[#111726] border border-slate-800 rounded-2xl p-4 overflow-y-auto">
+            <h2 class="text-blue-400 font-extrabold text-sm md:text-base mb-2.5">DALAM PENGERJAAN & QC (${inWork.length})</h2>
+            <div class="space-y-2">
               ${inWork.map(v => {
                 const st = getStageInfo(v);
-                return `<div class="bg-[#080c17] border border-slate-800 p-4 rounded-xl flex justify-between items-center">
-                  <div class="flex items-center gap-3">
-                    ${renderCarVisual(v.tipe_mobil, true, 'h-10')}
-                    <div><div class="text-lg font-bold">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil} • ${st.sub}</div></div>
+                return `<div class="bg-[#080c17] border border-slate-800 px-3.5 py-2.5 rounded-xl flex justify-between items-center">
+                  <div class="flex items-center gap-2.5">
+                    ${renderCarVisual(v.tipe_mobil, true, 'h-8')}
+                    <div><div class="text-base font-bold">${v.no_polisi}</div><div class="text-[11px] text-slate-400">${v.tipe_mobil} • ${st.sub}</div></div>
                   </div>
-                  <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                  <span class="px-2.5 py-0.5 rounded text-[11px] font-bold border ${st.badge}">${st.label}</span>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-sm">Semua unit sudah selesai dikerjakan.</p>'}
             </div>
@@ -729,7 +799,6 @@
             if (isFinalBilled) announcedBilledIds.add(item.id);
             if (isHandoverReady) announcedHandoverIds.add(item.id);
           } else {
-            // 1. Panggilan ke kasir saat status berubah menjadi 'Final Billed'
             if (isFinalBilled && !announcedBilledIds.has(item.id)) {
               announcedBilledIds.add(item.id);
               queueAnnouncement(item, 'billed');
@@ -737,7 +806,6 @@
               announcedBilledIds.delete(item.id);
             }
 
-            // 2. Panggilan serah terima saat sudah bayar & cuci selesai
             if (isHandoverReady && !announcedHandoverIds.has(item.id)) {
               announcedHandoverIds.add(item.id);
               queueAnnouncement(item, 'handover');
