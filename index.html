@@ -261,38 +261,40 @@
     // Pemetaan file gambar mobil di folder ./public/ sesuai nama file aktual
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=2'; // Memaksa browser memuat gambar transparan terbaru
+      const v = '?v=3'; // Cache buster baru agar browser mengabaikan gambar lama
+      const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
+
       if (m.includes('xenia')) {
-        return [`./public/XENIA.png${v}`, `./public/XENIA.webp${v}`, `./public/xenia.png${v}`];
+        return toUrls(['XENIA.png', 'XENIA.webp', 'XENIA.PNG']);
       }
       if (m.includes('minibus')) {
-        return [
-          `./public/GRANDMAX MINIBUS.png${v}`,
-          `./public/GRANDMAX MINIBUS (1).png${v}`,
-          `./public/GRANDMAX MINIBUS.webp${v}`,
-          `./public/grandmax-minibus.png${v}`
-        ];
+        return toUrls([
+          'GRANDMAX MINIBUS (1).png',
+          'GRANDMAX MINIBUS.png',
+          'GRANDMAX MINIBUS (1).webp',
+          'GRANDMAX MINIBUS.webp'
+        ]);
       }
       if (m.includes('pick')) {
-        return [
-          `./public/GRANDMAX PICK UP.png${v}`,
-          `./public/GRANDMAX PICK UP.webp${v}`,
-          `./public/grandmax-pick-up.png${v}`
-        ];
+        return toUrls([
+          'GRANDMAX PICK UP.png',
+          'GRANDMAX PICK UP.webp',
+          'GRANDMAX PICK UP.PNG'
+        ]);
       }
       if (m.includes('sigra')) {
-        return [`./public/SIGRA.png${v}`, `./public/SIGRA.webp${v}`, `./public/sigra.png${v}`];
+        return toUrls(['SIGRA.png', 'SIGRA.webp', 'SIGRA.PNG']);
       }
       if (m.includes('terios')) {
-        return [`./public/TERIOS.png${v}`, `./public/TERIOS.webp${v}`, `./public/terios.png${v}`];
+        return toUrls(['TERIOS.png', 'TERIOS.webp', 'TERIOS.PNG']);
       }
       if (m.includes('luxio')) {
-        return [`./public/LUXIO.png${v}`, `./public/LUXIO.webp${v}`, `./public/luxio.png${v}`];
+        return toUrls(['LUXIO.png', 'LUXIO.webp', 'LUXIO.PNG']);
       }
       if (m.includes('sirion')) {
-        return [`./public/SIRION.png${v}`, `./public/SIRION.webp${v}`, `./public/sirion.png${v}`];
+        return toUrls(['SIRION.png', 'SIRION.webp', 'SIRION.PNG']);
       }
-      return [`./public/XENIA.png${v}`];
+      return toUrls(['XENIA.png']);
     }
 
     function handleCarImgError(img) {
