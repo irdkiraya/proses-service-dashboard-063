@@ -10,17 +10,23 @@
 <body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans">
   <div class="max-w-5xl mx-auto">
     <div class="bg-red-700 text-white p-6 rounded-2xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <span class="text-xs bg-red-900 px-2.5 py-1 rounded font-mono">CABANG 063 • citraraya063@daihatsu.co.id</span>
-        <h1 class="text-2xl font-bold tracking-wide mt-2">ASTRA DAIHATSU CITRA RAYA</h1>
-        <p class="text-red-100 text-sm">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
+      <div class="flex items-center gap-4">
+        <div class="bg-white p-2.5 rounded-xl shadow flex items-center gap-2.5 shrink-0">
+          <img src="public/logo-astra.png" alt="Logo Astra Daihatsu" class="h-9 w-auto object-contain" onerror="this.style.display='none'">
+          <img src="public/ir-digital.png" alt="IR Digital" class="h-8 w-auto object-contain border-l border-slate-200 pl-2.5" onerror="this.style.display='none'">
+        </div>
+        <div>
+          <span class="text-xs bg-red-900 px-2.5 py-1 rounded font-mono">CABANG 063 • citraraya063@daihatsu.co.id</span>
+          <h1 class="text-xl md:text-2xl font-bold tracking-wide mt-1.5">ASTRA DAIHATSU CITRA RAYA</h1>
+          <p class="text-red-100 text-sm">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
+        </div>
       </div>
-      <a href="index.html" target="_blank" class="bg-white text-red-700 px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-red-50 shadow">
+      <a href="index.html" target="_blank" class="bg-white text-red-700 px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-red-50 shadow shrink-0">
         Buka Layar Monitor TV ↗
       </a>
     </div>
 
-    <!-- Form Input Unit Baru (Hanya No. Polisi, Tipe Mobil, Mekanik, Stall) -->
+    <!-- Form Input Unit Baru -->
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
       <h2 class="font-bold text-lg mb-4 text-slate-700">+ Tambah Unit Baru</h2>
       <form id="formPkb" class="grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -64,7 +70,7 @@
               <span class="font-bold text-lg text-slate-900">${item.no_polisi}</span>
               <span class="bg-red-100 text-red-700 text-xs px-2.5 py-0.5 rounded font-bold">${item.tipe_mobil}</span>
             </div>
-            <p class="text-sm text-slate-600 mt-1">Mekanik: <b>${item.mekanik}</b> • ${item.stall}</p>
+            <p class="text-sm text-slate-600 mt-1">Mekanik: <b>${item.mekanik}</b> •${item.stall}</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -74,7 +80,7 @@
               <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Siap Kasir)</option>
             </select>
 
-            <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
+            <button onclick="toggleCuci('${item.id}',${!item.cuci_selesai})" 
               class="px-3 py-2 rounded-lg text-sm font-bold ${item.cuci_selesai ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-sky-100 text-sky-700 border border-sky-300'}">
               ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
             </button>

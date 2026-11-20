@@ -1,9 +1,0 @@
-{
-  "name": "Digital Inspection Report DKI Raya",
-  "short_name": "DIR DKI Raya",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1e40af",
-  "icons": []
-}
