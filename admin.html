@@ -9,7 +9,7 @@
 </head>
 <body class="bg-[#080c17] text-slate-100 p-4 md:p-8 font-sans min-h-screen">
   <div class="max-w-5xl mx-auto">
-    <!-- Header Gelap dengan Aksen Merah & Logo Tengah -->
+    <!-- Header Gelap dengan Aksen Merah & Logo -->
     <div class="bg-[#0b101d] border border-slate-800 p-6 rounded-2xl shadow-xl mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-5">
         <div class="bg-white px-4 py-2.5 rounded-xl shadow flex items-center gap-3 shrink-0">
@@ -36,22 +36,45 @@
       </a>
     </div>
 
-    <!-- Form Input Unit Baru -->
+    <!-- Form Input Unit Baru dengan Pilihan Stall -->
     <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg mb-6">
       <h2 class="font-bold text-base text-white mb-4 flex items-center gap-2">
         <span class="text-red-500">+</span> Tambah Unit Baru
       </h2>
       <form id="formPkb" class="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl uppercase font-bold focus:outline-none focus:border-red-500">
-        <select id="tipe_mobil" class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
+        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required
+               class="bg-[#080c17] border border-slate-700 text-white placeholder-slate-500 p-2.5 rounded-xl uppercase font-bold focus:outline-none focus:border-red-500">
+
+        <select id="tipe_mobil" required
+                class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
           <option value="All New Xenia">All New Xenia</option>
           <option value="Astra Daihatsu Sigra">Astra Daihatsu Sigra</option>
           <option value="New Terios">New Terios</option>
           <option value="Gran Max">Gran Max</option>
         </select>
-        <input type="text" id="mekanik" placeholder="Nama Mekanik" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
-        <input type="text" id="stall" placeholder="Stall (Stall 1)" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
-        <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-red-600/20 transition">
+
+        <input type="text" id="mekanik" placeholder="Nama Mekanik" required
+               class="bg-[#080c17] border border-slate-700 text-white placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:border-red-500">
+
+        <!-- Multiple Choice Pilihan Stall -->
+        <select id="stall" required
+                class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
+          <option value="" disabled selected>-- Pilih Stall --</option>
+          <option value="Stall 1">Stall 1</option>
+          <option value="Stall 2">Stall 2</option>
+          <option value="Stall 3">Stall 3</option>
+          <option value="Stall 4">Stall 4</option>
+          <option value="Stall 5">Stall 5</option>
+          <option value="Stall 6">Stall 6</option>
+          <option value="Stall 7">Stall 7</option>
+          <option value="Stall 8">Stall 8</option>
+          <option value="Stall 9">Stall 9</option>
+          <option value="Stall 10">Stall 10</option>
+          <option value="Stall Express 1">Stall Express 1</option>
+          <option value="Stall Express 2">Stall Express 2</option>
+        </select>
+
+        <button type="submit" id="btnSubmit" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-red-600/20 transition">
           Masuk Proses
         </button>
       </form>
@@ -72,7 +95,12 @@
     async function loadAdminData() {
       const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
       const container = document.getElementById('listAdmin');
-      if (error) return container.innerHTML = `<p class="text-red-400 font-semibold">Error: ${error.message}</p>`;
+      if (error) {
+        return container.innerHTML = `<div class="bg-red-950/50 border border-red-500/40 text-red-300 p-4 rounded-xl text-sm">
+          <b>Gagal memuat data:</b> ${error.message}<br>
+          <span class="text-xs text-slate-400">Pastikan perintah SQL GRANT ALL pada Supabase sudah dijalankan.</span>
+        </div>`;
+      }
       if (data.length === 0) return container.innerHTML = `<p class="text-slate-500 text-center py-6">Belum ada unit dalam proses servis.</p>`;
 
       container.innerHTML = data.map(item => `
@@ -82,7 +110,7 @@
               <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-base">${item.no_polisi}</span>
               <span class="bg-red-500/15 text-red-400 border border-red-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">${item.tipe_mobil}</span>
             </div>
-            <p class="text-sm text-slate-400 mt-1.5">Mekanik: <b class="text-slate-200">${item.mekanik}</b> • ${item.stall}</p>
+            <p class="text-sm text-slate-400 mt-1.5">Mekanik: <b class="text-slate-200">${item.mekanik}</b> • <span class="text-amber-400 font-semibold">${item.stall}</span></p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -107,7 +135,11 @@
 
     document.getElementById('formPkb').addEventListener('submit', async (e) => {
       e.preventDefault();
-      await db.from('pkb_service').insert([{
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      const { error } = await db.from('pkb_service').insert([{
         no_pkb: '-',
         no_polisi: document.getElementById('no_polisi').value.toUpperCase(),
         tipe_mobil: document.getElementById('tipe_mobil').value,
@@ -116,20 +148,32 @@
         status_pkb: 'Walk In Proses',
         cuci_selesai: false
       }]);
-      e.target.reset();
+
+      btn.disabled = false;
+      btn.textContent = 'Masuk Proses';
+
+      if (error) {
+        alert('Gagal menyimpan data: ' + error.message);
+      } else {
+        e.target.reset();
+        loadAdminData();
+      }
     });
 
     async function updateStatus(id, status_pkb) {
       await db.from('pkb_service').update({ status_pkb }).eq('id', id);
+      loadAdminData();
     }
 
     async function toggleCuci(id, cuci_selesai) {
       await db.from('pkb_service').update({ cuci_selesai }).eq('id', id);
+      loadAdminData();
     }
 
     async function hapusUnit(id) {
       if (confirm('Hapus unit ini dari layar monitor (sudah dibayar)?')) {
         await db.from('pkb_service').delete().eq('id', id);
+        loadAdminData();
       }
     }
 
