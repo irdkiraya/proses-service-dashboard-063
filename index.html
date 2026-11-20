@@ -258,17 +258,41 @@
       return { step: 4, pct: 100, label: 'Siap di Kasir', sub: 'Siap Pembayaran Kasir', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', isFinished: true };
     }
 
-    // Pemetaan file gambar mobil di folder ./public/ sesuai tipe kendaraan
+    // Pemetaan file gambar mobil di folder ./public/ sesuai nama file aktual
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      if (m.includes('xenia')) return ['./public/xenia.png', './public/XENIA.png'];
-      if (m.includes('minibus')) return ['./public/grandmax-minibus.png', './public/grand-max-minibus.png', './public/GRANDMAX MINIBUS.png', './public/grandmax minibus.png'];
-      if (m.includes('pick')) return ['./public/grandmax-pick-up.png', './public/grand-max-pick-up.png', './public/grandmax-pickup.png', './public/GRANDMAX PICK UP.png', './public/grandmax pick up.png'];
-      if (m.includes('sigra')) return ['./public/sigra.png', './public/SIGRA.png'];
-      if (m.includes('terios')) return ['./public/terios.png', './public/TERIOS.png'];
-      if (m.includes('luxio')) return ['./public/luxio.png', './public/LUXIO.png'];
-      if (m.includes('sirion')) return ['./public/sirion.png', './public/SIRION.png'];
-      return ['./public/xenia.png'];
+      const v = '?v=2'; // Memaksa browser memuat gambar transparan terbaru
+      if (m.includes('xenia')) {
+        return [`./public/XENIA.png${v}`, `./public/XENIA.webp${v}`, `./public/xenia.png${v}`];
+      }
+      if (m.includes('minibus')) {
+        return [
+          `./public/GRANDMAX MINIBUS.png${v}`,
+          `./public/GRANDMAX MINIBUS (1).png${v}`,
+          `./public/GRANDMAX MINIBUS.webp${v}`,
+          `./public/grandmax-minibus.png${v}`
+        ];
+      }
+      if (m.includes('pick')) {
+        return [
+          `./public/GRANDMAX PICK UP.png${v}`,
+          `./public/GRANDMAX PICK UP.webp${v}`,
+          `./public/grandmax-pick-up.png${v}`
+        ];
+      }
+      if (m.includes('sigra')) {
+        return [`./public/SIGRA.png${v}`, `./public/SIGRA.webp${v}`, `./public/sigra.png${v}`];
+      }
+      if (m.includes('terios')) {
+        return [`./public/TERIOS.png${v}`, `./public/TERIOS.webp${v}`, `./public/terios.png${v}`];
+      }
+      if (m.includes('luxio')) {
+        return [`./public/LUXIO.png${v}`, `./public/LUXIO.webp${v}`, `./public/luxio.png${v}`];
+      }
+      if (m.includes('sirion')) {
+        return [`./public/SIRION.png${v}`, `./public/SIRION.webp${v}`, `./public/sirion.png${v}`];
+      }
+      return [`./public/XENIA.png${v}`];
     }
 
     function handleCarImgError(img) {
