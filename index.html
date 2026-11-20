@@ -30,6 +30,11 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
+      <!-- Tombol Aktivasi Audio (Wajib diklik 1x di TV agar browser mengizinkan suara otomatis) -->
+      <button id="audioToggleBtn" onclick="toggleAudio()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs md:text-sm px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+        🔇 Aktifkan Suara Panggilan
+      </button>
+
       <div class="bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
         <span class="text-slate-400">Unit Diproses:</span>
         <strong id="unitCount" class="text-amber-400 text-sm ml-1">0</strong>
@@ -46,7 +51,12 @@
     </div>
   </header>
 
-  <!-- Area Utama Dashboard (Otomatis menyesuaikan tinggi/kolom berdasarkan jumlah unit) -->
+  <!-- Banner Panggilan Kasir Aktif (Muncul otomatis saat ada panggilan suara) -->
+  <div id="callBanner" class="hidden bg-emerald-600 text-white px-6 py-3 text-center font-bold text-base md:text-xl tracking-wide animate-pulse shadow-lg">
+    🔔 PANGGILAN KASIR: <span id="callBannerText"></span>
+  </div>
+
+  <!-- Area Utama Dashboard -->
   <main id="dashboardContainer" class="flex-1 p-4 md:p-6 flex flex-col justify-center"></main>
 
   <!-- Footer Legenda Status -->
@@ -67,10 +77,121 @@
 
     let vehicles = [];
     let currentTheme = '1';
+    let audioEnabled = false;
+    let isFirstLoad = true;
+    const announcedIds = new Set(); // Mencegah panggilan berulang untuk unit yang sama
+    const speechQueue = [];
+    let isSpeaking = false;
 
     setInterval(() => {
       document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID');
     }, 1000);
+
+    // Fungsi mengaktifkan izin audio pada browser TV
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById('audioToggleBtn');
+      if (audioEnabled) {
+        btn.className = 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs md:text-sm px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition';
+        btn.innerHTML = '🔊 Suara Panggilan: AKTIF';
+        playChime();
+      } else {
+        btn.className = 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs md:text-sm px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition';
+        btn.innerHTML = '🔇 Aktifkan Suara Panggilan';
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    // Nada Bel 2-Nada (Ting-Tong) sebelum pengumuman suara
+    function playChime() {
+      return new Promise((resolve) => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const now = ctx.currentTime;
+
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(659.25, now); // Nada E5
+          gain1.gain.setValueAtTime(0.25, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+          osc1.connect(gain1);
+          gain1.connect(ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.5);
+
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(523.25, now + 0.45); // Nada C5
+          gain2.gain.setValueAtTime(0.25, now + 0.45);
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.start(now + 0.45);
+          osc2.stop(now + 1.1);
+
+          setTimeout(resolve, 1150);
+        } catch (e) {
+          resolve();
+        }
+      });
+    }
+
+    // Format pembacaan plat nomor agar dieja jelas oleh mesin suara (misal: "B 1428 WKR" -> "B, 1 4 2 8, W K R")
+    function formatPlateForSpeech(plate) {
+      return plate.toUpperCase().split('').map(ch => (ch === ' ' ? ', ' : ch + ' ')).join('');
+    }
+
+    function queueAnnouncement(vehicle) {
+      speechQueue.push(vehicle);
+      processSpeechQueue();
+    }
+
+    async function processSpeechQueue() {
+      if (isSpeaking || speechQueue.length === 0) return;
+      isSpeaking = true;
+
+      const v = speechQueue.shift();
+      const banner = document.getElementById('callBanner');
+      const bannerText = document.getElementById('callBannerText');
+
+      bannerText.textContent = `Kendaraan ${v.tipe_mobil} (${v.no_polisi}) telah selesai servis dan cuci. Silakan menuju Kasir.`;
+      banner.classList.remove('hidden');
+
+      if (audioEnabled && 'speechSynthesis' in window) {
+        await playChime();
+        const spelledPlate = formatPlateForSpeech(v.no_polisi);
+        const text = `Perhatian. Kendaraan ${v.tipe_mobil}, dengan nomor polisi, ${spelledPlate}, telah selesai servis dan pencucian. Silakan menuju ke kasir untuk penyelesaian administrasi. Terima kasih.`;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 0.92; // Kecepatan bicara jelas dan tenang
+        utterance.pitch = 1.0;
+
+        utterance.onend = () => {
+          setTimeout(() => {
+            banner.classList.add('hidden');
+            isSpeaking = false;
+            processSpeechQueue();
+          }, 2500);
+        };
+        utterance.onerror = () => {
+          banner.classList.add('hidden');
+          isSpeaking = false;
+          processSpeechQueue();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // Jika suara belum diaktifkan, tetap tampilkan banner visual selama 6 detik
+        setTimeout(() => {
+          banner.classList.add('hidden');
+          isSpeaking = false;
+          processSpeechQueue();
+        }, 6000);
+      }
+    }
 
     function getStageInfo(v) {
       if (v.status_pkb === 'Walk In Proses') {
@@ -280,6 +401,21 @@
     async function syncFromSupabase() {
       const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
       if (!error && data) {
+        data.forEach(item => {
+          const isReady = item.status_pkb === 'Final Billed' && item.cuci_selesai === true;
+          if (isFirstLoad) {
+            if (isReady) announcedIds.add(item.id);
+          } else {
+            if (isReady && !announcedIds.has(item.id)) {
+              announcedIds.add(item.id);
+              queueAnnouncement(item);
+            } else if (!isReady && announcedIds.has(item.id)) {
+              // Reset jika status dikembalikan ke proses sebelumnya
+              announcedIds.delete(item.id);
+            }
+          }
+        });
+        isFirstLoad = false;
         vehicles = data;
         renderDashboard();
       }
