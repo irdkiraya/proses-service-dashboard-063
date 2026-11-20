@@ -410,26 +410,24 @@
       };
     }
 
-    // Pemetaan file gambar mobil (mendukung nama tanpa spasi/kurung maupun nama lama)
+    // Pemetaan file gambar mobil (menggunakan nama file baru tanpa tanda kurung)
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=5';
+      const v = '?v=7'; // Cache buster versi 7 untuk TV Xiaomi
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
       if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp']);
       if (m.includes('minibus')) {
         return toUrls([
-          'GRANDMAX-MINIBUS.png',
           'GRANDMAX MINIBUS.png',
-          'GRANDMAX MINIBUS (1).png',
-          'GRANDMAX-MINIBUS.webp'
+          'grandmax-minibus.png',
+          'GRANDMAX MINIBUS (1).png'
         ]);
       }
       if (m.includes('pick')) {
         return toUrls([
-          'GRANDMAX-PICK-UP.png',
           'GRANDMAX PICK UP.png',
-          'GRANDMAX-PICK-UP.webp'
+          'grandmax-pick-up.png'
         ]);
       }
       if (m.includes('sigra')) return toUrls(['SIGRA.png', 'SIGRA.webp']);
@@ -518,7 +516,6 @@
       renderDashboard();
     }
 
-    // Skala proporsional dinamis berdasarkan jumlah antrean (1 s.d. 15 unit)
     function getDynamicScale(count) {
       if (count <= 4) {
         return {
