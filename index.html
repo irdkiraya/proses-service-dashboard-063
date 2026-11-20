@@ -410,10 +410,10 @@
       };
     }
 
-    // Pemetaan file gambar mobil (menggunakan nama file baru tanpa tanda kurung)
+    // Pemetaan file gambar mobil (nama bersih tanpa tanda kurung)
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=7'; // Cache buster versi 7 untuk TV Xiaomi
+      const v = '?v=8'; // Cache buster versi 8
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
       if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp']);
@@ -457,7 +457,7 @@
       const isHatchback = m.includes('sirion');
       const isWhiteCar = m.includes('minibus') || m.includes('sigra');
 
-      // Filter khusus mobil putih agar detail kaca, gril, & roda tidak silau/putih polos di TV
+      // Filter khusus mobil putih agar detail kaca & bodi tidak silau di TV
       const tvColorFilter = isWhiteCar
         ? 'brightness-90 contrast-125 saturate-110'
         : 'contrast-105';
