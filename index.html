@@ -61,8 +61,8 @@
   </footer>
 
   <script>
-    const SUPABASE_URL = 'URL_SUPABASE_ANDA';
-    const SUPABASE_KEY = 'ANON_KEY_ANDA';
+    const SUPABASE_URL = 'https://hqyrnilihllhpxdnwvsg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let vehicles = [];
@@ -114,13 +114,11 @@
         return;
       }
 
-      // Skala dinamis sesuai jumlah unit
       const count = vehicles.length;
       const gridCols = count <= 2 ? 'grid-cols-1' : count <= 6 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3';
       const padClass = count <= 3 ? 'p-5' : count <= 6 ? 'p-3.5' : 'p-2.5';
 
       if (currentTheme === '1') {
-        // TEMA 1: Lintasan Mobil Kiri ke Kanan
         container.innerHTML = `<div class="grid ${count > 5 ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-3 w-full max-w-7xl mx-auto">
           ${vehicles.map(v => {
             const st = getStageInfo(v);
@@ -153,7 +151,6 @@
           }).join('')}
         </div>`;
       } else if (currentTheme === '2') {
-        // TEMA 2: Papan Digital Bandara
         container.innerHTML = `<div class="w-full max-w-7xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
           <table class="w-full text-left border-collapse">
             <thead class="bg-slate-800 text-slate-300 text-xs uppercase">
@@ -182,7 +179,6 @@
           </table>
         </div>`;
       } else if (currentTheme === '3') {
-        // TEMA 3: Kartu Progres Modern
         container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
           ${vehicles.map(v => {
             const st = getStageInfo(v);
@@ -208,7 +204,6 @@
           }).join('')}
         </div>`;
       } else if (currentTheme === '4') {
-        // TEMA 4: Lajur Bengkel (4 Kolom)
         const cols = [
           { title: '1. Walk In Proses (Mekanik)', step: 1, accent: 'border-amber-500 text-amber-400' },
           { title: '2. Confirm (QC Ka. Regu)', step: 2, accent: 'border-purple-500 text-purple-400' },
@@ -234,7 +229,6 @@
           }).join('')}
         </div>`;
       } else if (currentTheme === '5') {
-        // TEMA 5: Speedometer Gauge
         container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
           ${vehicles.map(v => {
             const st = getStageInfo(v);
@@ -252,7 +246,6 @@
           }).join('')}
         </div>`;
       } else {
-        // TEMA 6: Sorotan Kasir & Cuci
         const ready = vehicles.filter(v => getStageInfo(v).step >= 3);
         const inWork = vehicles.filter(v => getStageInfo(v).step < 3);
         container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-7xl mx-auto">

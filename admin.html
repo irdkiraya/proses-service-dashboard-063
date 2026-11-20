@@ -48,14 +48,14 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'URL_SUPABASE_ANDA';
-    const SUPABASE_KEY = 'ANON_KEY_ANDA';
+    const SUPABASE_URL = 'https://hqyrnilihllhpxdnwvsg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function loadAdminData() {
       const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
       const container = document.getElementById('listAdmin');
-      if (error) return container.innerHTML = `<p class="text-red-600 font-semibold">Gagal memuat data. Pastikan URL & Key Supabase sudah benar.</p>`;
+      if (error) return container.innerHTML = `<p class="text-red-600 font-semibold">Error: ${error.message}</p>`;
       if (data.length === 0) return container.innerHTML = `<p class="text-slate-400 text-center py-6">Belum ada unit dalam proses servis.</p>`;
 
       container.innerHTML = data.map(item => `
