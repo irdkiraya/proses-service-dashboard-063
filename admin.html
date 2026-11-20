@@ -3,63 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Service - ASTRA DAIHATSU CITRA RAYA</title>
+  <title>Kelola Unit - ASTRA DAIHATSU CITRA RAYA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans">
+<body class="bg-[#080c17] text-slate-100 p-4 md:p-8 font-sans min-h-screen">
   <div class="max-w-5xl mx-auto">
-    <div class="bg-red-700 text-white p-6 rounded-2xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <!-- Header Gelap dengan Aksen Merah & Logo Tengah -->
+    <div class="bg-[#0b101d] border border-slate-800 p-6 rounded-2xl shadow-xl mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-5">
         <div class="bg-white px-4 py-2.5 rounded-xl shadow flex items-center gap-3 shrink-0">
-          <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-10 md:h-11 w-auto object-contain"
+          <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-10 w-auto object-contain"
                onerror="this.style.display='none'; document.getElementById('fallbackLogoAdmin').classList.remove('hidden');">
           <img src="./public/ir-digital.png" alt="IR Digital" class="h-8 w-auto object-contain border-l border-slate-200 pl-3"
                onerror="this.style.display='none';">
-          <div id="fallbackLogoAdmin" class="hidden flex items-center gap-2">
-            <svg viewBox="0 0 64 44" class="h-8 w-auto">
-              <ellipse cx="32" cy="22" rx="30" ry="20" fill="#dc2626"/>
-              <path d="M12 22 L32 8 L52 22 L32 36 Z" fill="#ffffff"/>
-              <path d="M22 22 L32 14 L42 22 L32 30 Z" fill="#dc2626"/>
+          <div id="fallbackLogoAdmin" class="hidden bg-red-600 p-2 rounded-lg flex items-center justify-center">
+            <svg viewBox="0 0 64 44" class="h-6 w-auto">
+              <ellipse cx="32" cy="22" rx="28" ry="18" fill="none" stroke="#ffffff" stroke-width="4"/>
+              <path d="M14 22 L32 10 L50 22 L32 34 Z" fill="#ffffff"/>
             </svg>
-            <div class="leading-none">
-              <div class="text-[10px] font-bold text-slate-500 tracking-widest">ASTRA</div>
-              <div class="text-base font-black text-red-700 tracking-tight">DAIHATSU</div>
-            </div>
           </div>
         </div>
         <div class="flex flex-col justify-center">
-          <h1 class="text-xl md:text-2xl font-extrabold tracking-wide leading-tight">ASTRA DAIHATSU CITRA RAYA</h1>
-          <p class="text-red-100 text-sm mt-0.5">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
+          <h1 class="text-xl md:text-2xl font-black tracking-wide text-white leading-tight">
+            ASTRA DAIHATSU <span class="text-red-500">CITRA RAYA</span>
+          </h1>
+          <p class="text-slate-400 text-sm mt-0.5">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
         </div>
       </div>
-      <a href="index.html" target="_blank" class="bg-white text-red-700 px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-red-50 shadow shrink-0">
+      <a href="index.html" target="_blank" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-red-600/20 shrink-0 transition">
         Buka Layar Monitor TV ↗
       </a>
     </div>
 
     <!-- Form Input Unit Baru -->
-    <div class="bg-white p-6 rounded-2xl shadow mb-6">
-      <h2 class="font-bold text-lg mb-4 text-slate-700">+ Tambah Unit Baru</h2>
+    <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg mb-6">
+      <h2 class="font-bold text-base text-white mb-4 flex items-center gap-2">
+        <span class="text-red-500">+</span> Tambah Unit Baru
+      </h2>
       <form id="formPkb" class="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="border p-2.5 rounded-lg uppercase font-semibold">
-        <select id="tipe_mobil" class="border p-2.5 rounded-lg">
+        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl uppercase font-bold focus:outline-none focus:border-red-500">
+        <select id="tipe_mobil" class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
           <option value="All New Xenia">All New Xenia</option>
           <option value="Astra Daihatsu Sigra">Astra Daihatsu Sigra</option>
           <option value="New Terios">New Terios</option>
           <option value="Gran Max">Gran Max</option>
         </select>
-        <input type="text" id="mekanik" placeholder="Nama Mekanik" required class="border p-2.5 rounded-lg">
-        <input type="text" id="stall" placeholder="Stall (Stall 1)" required class="border p-2.5 rounded-lg">
-        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg">
+        <input type="text" id="mekanik" placeholder="Nama Mekanik" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
+        <input type="text" id="stall" placeholder="Stall (Stall 1)" required class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl focus:outline-none focus:border-red-500">
+        <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-red-600/20 transition">
           Masuk Proses
         </button>
       </form>
     </div>
 
     <!-- Daftar Unit Dalam Proses -->
-    <div class="bg-white p-6 rounded-2xl shadow">
-      <h2 class="font-bold text-lg mb-4 text-slate-700">Daftar Kendaraan Dalam Proses</h2>
+    <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="font-bold text-base text-white mb-4">Daftar Kendaraan Dalam Proses</h2>
       <div id="listAdmin" class="space-y-3">Menghubungkan ke database...</div>
     </div>
   </div>
@@ -72,32 +72,32 @@
     async function loadAdminData() {
       const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
       const container = document.getElementById('listAdmin');
-      if (error) return container.innerHTML = `<p class="text-red-600 font-semibold">Error: ${error.message}</p>`;
-      if (data.length === 0) return container.innerHTML = `<p class="text-slate-400 text-center py-6">Belum ada unit dalam proses servis.</p>`;
+      if (error) return container.innerHTML = `<p class="text-red-400 font-semibold">Error: ${error.message}</p>`;
+      if (data.length === 0) return container.innerHTML = `<p class="text-slate-500 text-center py-6">Belum ada unit dalam proses servis.</p>`;
 
       container.innerHTML = data.map(item => `
-        <div class="border rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50">
+        <div class="border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#080c17]">
           <div>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-lg text-slate-900">${item.no_polisi}</span>
-              <span class="bg-red-100 text-red-700 text-xs px-2.5 py-0.5 rounded font-bold">${item.tipe_mobil}</span>
+            <div class="flex items-center gap-2.5">
+              <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-base">${item.no_polisi}</span>
+              <span class="bg-red-500/15 text-red-400 border border-red-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">${item.tipe_mobil}</span>
             </div>
-            <p class="text-sm text-slate-600 mt-1">Mekanik: <b>${item.mekanik}</b> • ${item.stall}</p>
+            <p class="text-sm text-slate-400 mt-1.5">Mekanik: <b class="text-slate-200">${item.mekanik}</b> • ${item.stall}</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <select onchange="updateStatus('${item.id}', this.value)" class="border bg-white p-2 rounded-lg text-sm font-semibold">
+            <select onchange="updateStatus('${item.id}', this.value)" class="bg-[#161e2e] border border-slate-700 text-white p-2 rounded-xl text-sm font-semibold focus:outline-none">
               <option value="Walk In Proses" ${item.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In Proses (Mekanik)</option>
               <option value="Confirm" ${item.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC Kepala Regu)</option>
               <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Siap Kasir)</option>
             </select>
 
             <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
-              class="px-3 py-2 rounded-lg text-sm font-bold ${item.cuci_selesai ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-sky-100 text-sky-700 border border-sky-300'}">
+              class="px-3.5 py-2 rounded-xl text-sm font-bold border transition ${item.cuci_selesai ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'}">
               ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
             </button>
 
-            <button onclick="hapusUnit('${item.id}')" class="bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-rose-200">
+            <button onclick="hapusUnit('${item.id}')" class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl text-sm font-bold hover:bg-rose-500/25 transition">
               Selesai / Hapus
             </button>
           </div>
