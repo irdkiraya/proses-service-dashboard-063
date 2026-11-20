@@ -18,6 +18,9 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans select-none overflow-x-hidden">
 
+  <!-- Elemen Audio Permanen untuk TV Xiaomi / Smart TV -->
+  <audio id="ttsAudioPlayer" preload="auto" playsinline></audio>
+
   <!-- Header Sesuai Palet Desain Utama -->
   <header class="bg-[#0b101d] border-b border-slate-800/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-4">
@@ -169,16 +172,25 @@
       const btn = document.getElementById('audioToggleBtn');
       const dot = document.getElementById('audioDot');
       const label = document.getElementById('audioLabel');
+      const player = document.getElementById('ttsAudioPlayer');
+
       if (audioEnabled) {
         btn.className = 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 transition';
         dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
         label.textContent = 'Suara Panggilan: ON';
+
+        // Buka izin pemutaran audio otomatis di TV Xiaomi saat tombol ON ditekan
+        if (player) {
+          player.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+          player.play().catch(() => {});
+        }
         playChime();
       } else {
         btn.className = 'bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs md:text-sm px-4 py-2 rounded-full flex items-center gap-2 transition';
         dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
         label.textContent = 'Suara Panggilan: OFF';
-        window.speechSynthesis.cancel();
+        if (player) { player.pause(); player.currentTime = 0; }
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       }
     }
 
@@ -213,6 +225,69 @@
       return plate.toUpperCase().split('').map(ch => (ch === ' ' ? ', ' : ch + ' ')).join('');
     }
 
+    // Pemecah kalimat menjadi potongan < 180 karakter agar aman diputar oleh Cloud TTS MP3
+    function splitTextChunks(text) {
+      const parts = text.split(',').map(s => s.trim()).filter(Boolean);
+      const chunks = [];
+      let current = '';
+      for (const p of parts) {
+        if ((current + ', ' + p).length > 170) {
+          if (current) chunks.push(current);
+          current = p;
+        } else {
+          current = current ? `${current}, ${p}` : p;
+        }
+      }
+      if (current) chunks.push(current);
+      return chunks;
+    }
+
+    // Pemutar suara MP3 permanen (berjalan di TV Xiaomi tanpa perlu instal TTS Bahasa Indonesia)
+    function playCloudAudio(text) {
+      return new Promise(async (resolve) => {
+        const player = document.getElementById('ttsAudioPlayer');
+        const chunks = splitTextChunks(text);
+
+        for (const chunk of chunks) {
+          if (!audioEnabled) break;
+          const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=id&q=${encodeURIComponent(chunk)}`;
+          const played = await new Promise((resChunk) => {
+            let done = false;
+            const finish = (ok) => {
+              if (!done) {
+                done = true;
+                clearTimeout(timer);
+                resChunk(ok);
+              }
+            };
+            const timer = setTimeout(() => finish(false), 9000);
+            player.onended = () => finish(true);
+            player.onerror = () => finish(false);
+            player.src = url;
+            player.play().catch(() => finish(false));
+          });
+
+          // Jika jaringan memblokir audio MP3, otomatis gunakan fallback speechSynthesis
+          if (!played) {
+            await playFallbackSpeech(chunk);
+          }
+        }
+        resolve();
+      });
+    }
+
+    function playFallbackSpeech(text) {
+      return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) return resolve();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 0.92;
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+
     function queueAnnouncement(vehicle, type) {
       speechQueue.push({ vehicle, type });
       processSpeechQueue();
@@ -241,18 +316,20 @@
       bannerText.textContent = displayMsg;
       banner.classList.remove('hidden');
 
-      if (audioEnabled && 'speechSynthesis' in window) {
+      if (audioEnabled) {
         await playChime();
-        const utterance = new SpeechSynthesisUtterance(speechMsg);
-        utterance.lang = 'id-ID';
-        utterance.rate = 0.92;
-        utterance.onend = () => {
-          setTimeout(() => { banner.classList.add('hidden'); isSpeaking = false; processSpeechQueue(); }, 2500);
-        };
-        utterance.onerror = () => { banner.classList.add('hidden'); isSpeaking = false; processSpeechQueue(); };
-        window.speechSynthesis.speak(utterance);
+        await playCloudAudio(speechMsg);
+        setTimeout(() => {
+          banner.classList.add('hidden');
+          isSpeaking = false;
+          processSpeechQueue();
+        }, 2500);
       } else {
-        setTimeout(() => { banner.classList.add('hidden'); isSpeaking = false; processSpeechQueue(); }, 6000);
+        setTimeout(() => {
+          banner.classList.add('hidden');
+          isSpeaking = false;
+          processSpeechQueue();
+        }, 6000);
       }
     }
 
