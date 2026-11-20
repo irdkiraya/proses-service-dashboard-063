@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASTRA DAIHATSU CITRA RAYA - Informasi Real-Time Proses Service</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @keyframes spinWheel { 100% { transform: rotate(360deg); } }
+    @keyframes driveBounce { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2px); } }
+    @keyframes bubbleFloat { 0% { transform: translateY(0) scale(0.8); opacity: 0.9; } 100% { transform: translateY(-16px) scale(1.2); opacity: 0; } }
+    .car-moving { animation: driveBounce 0.6s infinite ease-in-out; }
+    .wheel-spin { transform-origin: center; animation: spinWheel 0.7s linear infinite; }
+    .wash-bubble { animation: bubbleFloat 1.4s infinite ease-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col font-sans select-none overflow-x-hidden">
+
+  <!-- Header Resmi Astra Daihatsu Citra Raya -->
+  <header class="bg-gradient-to-r from-red-800 via-red-700 to-slate-900 border-b border-red-500/30 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="bg-white text-red-700 font-black text-2xl px-3.5 py-1.5 rounded-xl tracking-tighter shadow">
+        DAIHATSU
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-extrabold tracking-wide text-white">ASTRA DAIHATSU CITRA RAYA</h1>
+        <p class="text-red-200 text-xs md:text-sm font-medium">Informasi Real - Time Proses Service</p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
+        <span class="text-slate-400">Unit Diproses:</span>
+        <strong id="unitCount" class="text-amber-400 text-sm ml-1">0</strong>
+      </div>
+      <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-slate-900 border border-slate-600 text-white text-xs md:text-sm rounded-lg px-3 py-2 font-semibold focus:outline-none">
+        <option value="1">Tampilan 1: Lintasan Mobil (Kiri → Kanan)</option>
+        <option value="2">Tampilan 2: Papan Digital Bandara</option>
+        <option value="3">Tampilan 3: Kartu Progres Modern</option>
+        <option value="4">Tampilan 4: Lajur Bengkel (4 Pos)</option>
+        <option value="5">Tampilan 5: Speedometer Gauge</option>
+        <option value="6">Tampilan 6: Sorotan Kasir & Cuci</option>
+      </select>
+      <div id="clock" class="font-mono text-sm md:text-base font-bold bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">00:00:00</div>
+    </div>
+  </header>
+
+  <!-- Area Utama Dashboard (Otomatis menyesuaikan tinggi/kolom berdasarkan jumlah unit) -->
+  <main id="dashboardContainer" class="flex-1 p-4 md:p-6 flex flex-col justify-center"></main>
+
+  <!-- Footer Legenda Status -->
+  <footer class="bg-slate-900 border-t border-slate-800 px-6 py-2.5 text-xs text-slate-400 flex flex-wrap justify-between items-center gap-2">
+    <div class="flex flex-wrap gap-4">
+      <span><b class="text-amber-400">1. Walk In Proses:</b> Pengerjaan Mekanik</span>
+      <span><b class="text-purple-400">2. Confirm:</b> QC Kepala Regu</span>
+      <span><b class="text-sky-400">3. Cuci Kendaraan:</b> Proses Cuci</span>
+      <span><b class="text-emerald-400">4. Final Billed:</b> Siap Pembayaran di Kasir</span>
+    </div>
+    <span class="text-slate-500">Kode Cabang: 063 • Live Sync</span>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'URL_SUPABASE_ANDA';
+    const SUPABASE_KEY = 'ANON_KEY_ANDA';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let vehicles = [];
+    let currentTheme = '1';
+
+    setInterval(() => {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID');
+    }, 1000);
+
+    function getStageInfo(v) {
+      if (v.status_pkb === 'Walk In Proses') {
+        return { step: 1, pct: 25, label: 'Pekerjaan Mekanik', sub: `${v.mekanik || 'Mekanik'} (${v.stall || 'Stall'})`, color: 'amber', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40', isFinished: false };
+      }
+      if (v.status_pkb === 'Confirm') {
+        return { step: 2, pct: 55, label: 'QC Kepala Regu', sub: 'Pemeriksaan Kualitas', color: 'purple', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40', isFinished: false };
+      }
+      if (v.status_pkb === 'Final Billed' && !v.cuci_selesai) {
+        return { step: 3, pct: 80, label: 'Cuci Kendaraan', sub: 'Sedang Proses Cuci', color: 'sky', badge: 'bg-sky-500/20 text-sky-300 border-sky-500/40', isFinished: false };
+      }
+      return { step: 4, pct: 100, label: 'Siap di Kasir', sub: 'Tagihan Siap (Final Billed)', color: 'emerald', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', isFinished: true };
+    }
+
+    function carSvg(model, isMoving) {
+      const m = (model || '').toLowerCase();
+      const isPickup = m.includes('gran');
+      const bodyColor = m.includes('xenia') ? '#ef4444' : m.includes('sigra') ? '#f8fafc' : m.includes('terios') ? '#38bdf8' : '#f59e0b';
+      return `
+        <svg viewBox="0 0 120 48" class="w-16 h-8 md:w-20 md:h-9 drop-shadow-md ${isMoving ? 'car-moving' : ''}">
+          ${isPickup
+            ? `<path d="M10 32 L10 18 L52 18 L52 10 L82 10 L96 20 L110 22 L110 32 Z" fill="${bodyColor}"/>`
+            : `<path d="M10 32 L14 16 L32 10 L80 10 L96 19 L110 22 L110 32 Z" fill="${bodyColor}"/>`
+          }
+          <circle cx="30" cy="34" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
+          <circle cx="90" cy="34" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
+        </svg>`;
+    }
+
+    function changeTheme(val) {
+      currentTheme = val;
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const container = document.getElementById('dashboardContainer');
+      document.getElementById('unitCount').textContent = vehicles.length;
+
+      if (vehicles.length === 0) {
+        container.innerHTML = `<div class="text-center text-slate-400 text-xl">Tidak ada antrean unit dalam proses saat ini.</div>`;
+        return;
+      }
+
+      // Skala dinamis sesuai jumlah unit
+      const count = vehicles.length;
+      const gridCols = count <= 2 ? 'grid-cols-1' : count <= 6 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3';
+      const padClass = count <= 3 ? 'p-5' : count <= 6 ? 'p-3.5' : 'p-2.5';
+
+      if (currentTheme === '1') {
+        // TEMA 1: Lintasan Mobil Kiri ke Kanan
+        container.innerHTML = `<div class="grid ${count > 5 ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'} gap-3 w-full max-w-7xl mx-auto">
+          ${vehicles.map(v => {
+            const st = getStageInfo(v);
+            const leftPos = st.step === 1 ? '8%' : st.step === 2 ? '38%' : st.step === 3 ? '66%' : '86%';
+            return `
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl ${padClass} shadow-lg">
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-3">
+                  <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded text-sm md:text-base">${v.no_polisi}</span>
+                  <span class="font-bold text-slate-200 text-sm md:text-base">${v.tipe_mobil}</span>
+                  <span class="text-xs text-slate-500 font-mono hidden sm:inline">${v.no_pkb}</span>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label} • ${st.sub}</span>
+              </div>
+              <div class="relative h-14 bg-slate-950 rounded-xl border border-slate-800 px-4 flex items-center overflow-hidden">
+                <div class="w-full border-t-2 border-dashed border-slate-700"></div>
+                <div class="absolute inset-x-4 flex justify-between text-[10px] font-bold text-slate-500 uppercase pointer-events-none">
+                  <span class="${st.step >= 1 ? 'text-amber-400' : ''}">1. Mekanik</span>
+                  <span class="${st.step >= 2 ? 'text-purple-400' : ''}">2. QC Ka.Regu</span>
+                  <span class="${st.step >= 3 ? 'text-sky-400' : ''}">3. Cuci</span>
+                  <span class="${st.step === 4 ? 'text-emerald-400' : ''}">4. Selesai / Kasir</span>
+                </div>
+                <div class="absolute transition-all duration-1000 ease-out flex items-center" style="left: ${leftPos};">
+                  ${carSvg(v.tipe_mobil, !st.isFinished)}
+                  ${st.step === 3 ? '<span class="wash-bubble text-sky-300 text-sm -ml-2">🫧</span>' : ''}
+                  ${st.isFinished ? '<span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded ml-1">SELESAI</span>' : ''}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      } else if (currentTheme === '2') {
+        // TEMA 2: Papan Digital Bandara
+        container.innerHTML = `<div class="w-full max-w-7xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-800 text-slate-300 text-xs uppercase">
+              <tr>
+                <th class="p-4">No. Polisi</th>
+                <th class="p-4">Unit Daihatsu</th>
+                <th class="p-4">No. PKB</th>
+                <th class="p-4">Status Proses</th>
+                <th class="p-4">Cuci Kendaraan</th>
+                <th class="p-4">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-sm md:text-base">
+              ${vehicles.map(v => {
+                const st = getStageInfo(v);
+                return `<tr class="${st.isFinished ? 'bg-emerald-950/30' : ''}">
+                  <td class="p-4 font-black text-amber-400 font-mono text-lg">${v.no_polisi}</td>
+                  <td class="p-4 font-bold">${v.tipe_mobil}</td>
+                  <td class="p-4 text-slate-400 font-mono text-xs">${v.no_pkb}</td>
+                  <td class="p-4"><span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span></td>
+                  <td class="p-4 text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-sky-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Belum / Sedang Cuci'}</td>
+                  <td class="p-4 text-slate-300 text-xs md:text-sm">${st.sub}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+      } else if (currentTheme === '3') {
+        // TEMA 3: Kartu Progres Modern
+        container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
+          ${vehicles.map(v => {
+            const st = getStageInfo(v);
+            return `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between gap-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <span class="text-xs font-mono text-slate-400">${v.no_pkb}</span>
+                  <h3 class="text-2xl font-black text-white">${v.no_polisi}</h3>
+                  <p class="text-red-400 font-bold text-sm">${v.tipe_mobil}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold border ${st.badge}">${st.label}</span>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1.5 text-slate-400">
+                  <span>${st.sub}</span>
+                  <span class="font-bold text-white">${st.pct}%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-red-600 to-emerald-400 transition-all duration-700" style="width:${st.pct}%"></div>
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      } else if (currentTheme === '4') {
+        // TEMA 4: Lajur Bengkel (4 Kolom)
+        const cols = [
+          { title: '1. Walk In Proses (Mekanik)', step: 1, accent: 'border-amber-500 text-amber-400' },
+          { title: '2. Confirm (QC Ka. Regu)', step: 2, accent: 'border-purple-500 text-purple-400' },
+          { title: '3. Cuci Kendaraan', step: 3, accent: 'border-sky-500 text-sky-400' },
+          { title: '4. Final Billed (Kasir)', step: 4, accent: 'border-emerald-500 text-emerald-400' }
+        ];
+        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 w-full max-w-7xl mx-auto h-full">
+          ${cols.map(c => {
+            const list = vehicles.filter(v => getStageInfo(v).step === c.step);
+            return `<div class="bg-slate-900/90 border-t-4 ${c.accent} rounded-xl p-4 flex flex-col gap-3">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-sm">${c.title}</h3>
+                <span class="bg-slate-800 text-white text-xs px-2 py-0.5 rounded-full">${list.length}</span>
+              </div>
+              <div class="space-y-2.5">
+                ${list.map(v => `<div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                  <div class="font-black text-base text-white">${v.no_polisi}</div>
+                  <div class="text-xs text-red-400 font-semibold">${v.tipe_mobil}</div>
+                  <div class="text-[11px] text-slate-400 mt-1">${v.mekanik} • ${v.stall}</div>
+                </div>`).join('') || '<p class="text-xs text-slate-600 italic">Kosong</p>'}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      } else if (currentTheme === '5') {
+        // TEMA 5: Speedometer Gauge
+        container.innerHTML = `<div class="grid ${gridCols} gap-4 w-full max-w-7xl mx-auto">
+          ${vehicles.map(v => {
+            const st = getStageInfo(v);
+            const deg = Math.round((st.pct / 100) * 360);
+            return `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-5">
+              <div class="w-20 h-20 rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#10b981 ${deg}deg, #1e293b 0deg);">
+                <div class="w-14 h-14 bg-slate-950 rounded-full flex items-center justify-center font-black text-sm">${st.pct}%</div>
+              </div>
+              <div>
+                <div class="font-black text-xl">${v.no_polisi} <span class="text-xs font-normal text-slate-400">(${v.tipe_mobil})</span></div>
+                <div class="inline-block mt-1 px-2.5 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</div>
+                <p class="text-xs text-slate-400 mt-1">${st.sub}</p>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      } else {
+        // TEMA 6: Sorotan Kasir & Cuci
+        const ready = vehicles.filter(v => getStageInfo(v).step >= 3);
+        const inWork = vehicles.filter(v => getStageInfo(v).step < 3);
+        container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
+          <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-5">
+            <h2 class="text-emerald-400 font-extrabold text-lg mb-3">SIAP KASIR & PROSES CUCI (${ready.length})</h2>
+            <div class="space-y-3">
+              ${ready.map(v => {
+                const st = getStageInfo(v);
+                return `<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                  <div><div class="text-xl font-black">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil} • ${v.no_pkb}</div></div>
+                  <span class="px-3 py-1.5 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                </div>`;
+              }).join('') || '<p class="text-slate-500 text-sm">Belum ada unit selesai servis.</p>'}
+            </div>
+          </div>
+          <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+            <h2 class="text-amber-400 font-extrabold text-lg mb-3">DALAM PENGERJAAN & QC (${inWork.length})</h2>
+            <div class="space-y-3">
+              ${inWork.map(v => {
+                const st = getStageInfo(v);
+                return `<div class="bg-slate-950 border border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                  <div><div class="text-lg font-bold">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil} • ${st.sub}</div></div>
+                  <span class="px-3 py-1 rounded-lg text-xs font-bold border ${st.badge}">${st.label}</span>
+                </div>`;
+              }).join('') || '<p class="text-slate-500 text-sm">Semua unit sudah selesai dikerjakan.</p>'}
+            </div>
+          </div>
+        </div>`;
+      }
+    }
+
+    async function syncFromSupabase() {
+      const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
+      if (!error && data) {
+        vehicles = data;
+        renderDashboard();
+      }
+    }
+
+    db.channel('monitor-063')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, syncFromSupabase)
+      .subscribe();
+
+    syncFromSupabase();
+  </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin PKB - ASTRA DAIHATSU CITRA RAYA (063)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 font-sans">
+  <div class="max-w-5xl mx-auto">
+    <div class="bg-red-700 text-white p-6 rounded-2xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <span class="text-xs bg-red-900 px-2.5 py-1 rounded font-mono">CABANG 063 • citraraya063@daihatsu.co.id</span>
+        <h1 class="text-2xl font-bold tracking-wide mt-2">ASTRA DAIHATSU CITRA RAYA</h1>
+        <p class="text-red-100 text-sm">Panel Kontrol Proses Service, QC & Cuci Kendaraan</p>
+      </div>
+      <a href="index.html" target="_blank" class="bg-white text-red-700 px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-red-50 shadow">
+        Buka Layar Monitor TV ↗
+      </a>
+    </div>
+
+    <!-- Form Input PKB Baru -->
+    <div class="bg-white p-6 rounded-2xl shadow mb-6">
+      <h2 class="font-bold text-lg mb-4 text-slate-700">+ Tambah Unit PKB Baru</h2>
+      <form id="formPkb" class="grid grid-cols-1 md:grid-cols-6 gap-3">
+        <input type="text" id="no_pkb" placeholder="No. PKB (PKB-063-005)" required class="border p-2.5 rounded-lg">
+        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required class="border p-2.5 rounded-lg uppercase">
+        <select id="tipe_mobil" class="border p-2.5 rounded-lg">
+          <option value="All New Xenia">All New Xenia</option>
+          <option value="Astra Daihatsu Sigra">Astra Daihatsu Sigra</option>
+          <option value="New Terios">New Terios</option>
+          <option value="Gran Max">Gran Max</option>
+        </select>
+        <input type="text" id="mekanik" placeholder="Nama Mekanik" required class="border p-2.5 rounded-lg">
+        <input type="text" id="stall" placeholder="Stall (Stall 1)" required class="border p-2.5 rounded-lg">
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg">
+          Masuk Proses
+        </button>
+      </form>
+    </div>
+
+    <!-- Daftar Unit Dalam Proses -->
+    <div class="bg-white p-6 rounded-2xl shadow">
+      <h2 class="font-bold text-lg mb-4 text-slate-700">Daftar Kendaraan Dalam Proses</h2>
+      <div id="listAdmin" class="space-y-3">Menghubungkan ke database...</div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'URL_SUPABASE_ANDA';
+    const SUPABASE_KEY = 'ANON_KEY_ANDA';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadAdminData() {
+      const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
+      const container = document.getElementById('listAdmin');
+      if (error) return container.innerHTML = `<p class="text-red-600 font-semibold">Gagal memuat data. Pastikan URL & Key Supabase sudah benar.</p>`;
+      if (data.length === 0) return container.innerHTML = `<p class="text-slate-400 text-center py-6">Belum ada unit dalam proses servis.</p>`;
+
+      container.innerHTML = data.map(item => `
+        <div class="border rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-lg text-slate-900">${item.no_polisi}</span>
+              <span class="bg-red-100 text-red-700 text-xs px-2.5 py-0.5 rounded font-bold">${item.tipe_mobil}</span>
+              <span class="text-xs text-slate-500 font-mono">${item.no_pkb}</span>
+            </div>
+            <p class="text-sm text-slate-600 mt-1">Mekanik: <b>${item.mekanik}</b> • ${item.stall}</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select onchange="updateStatus('${item.id}', this.value)" class="border bg-white p-2 rounded-lg text-sm font-semibold">
+              <option value="Walk In Proses" ${item.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In Proses (Mekanik)</option>
+              <option value="Confirm" ${item.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC Kepala Regu)</option>
+              <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Siap Kasir)</option>
+            </select>
+
+            <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
+              class="px-3 py-2 rounded-lg text-sm font-bold ${item.cuci_selesai ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' : 'bg-sky-100 text-sky-700 border border-sky-300'}">
+              ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
+            </button>
+
+            <button onclick="hapusUnit('${item.id}')" class="bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-rose-200">
+              Selesai / Hapus
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('formPkb').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await db.from('pkb_service').insert([{
+        no_pkb: document.getElementById('no_pkb').value,
+        no_polisi: document.getElementById('no_polisi').value.toUpperCase(),
+        tipe_mobil: document.getElementById('tipe_mobil').value,
+        mekanik: document.getElementById('mekanik').value,
+        stall: document.getElementById('stall').value,
+        status_pkb: 'Walk In Proses',
+        cuci_selesai: false
+      }]);
+      e.target.reset();
+    });
+
+    async function updateStatus(id, status_pkb) {
+      await db.from('pkb_service').update({ status_pkb }).eq('id', id);
+    }
+
+    async function toggleCuci(id, cuci_selesai) {
+      await db.from('pkb_service').update({ cuci_selesai }).eq('id', id);
+    }
+
+    async function hapusUnit(id) {
+      if (confirm('Hapus unit ini dari layar monitor (sudah dibayar)?')) {
+        await db.from('pkb_service').delete().eq('id', id);
+      }
+    }
+
+    db.channel('admin-063')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, loadAdminData)
+      .subscribe();
+
+    loadAdminData();
+  </script>
+</body>
+</html>
