@@ -283,60 +283,7 @@
       }
     }
 
-    // Menghapus piksel latar belakang tepi gambar secara otomatis menggunakan Canvas
-    function removeImageBg(imgEl) {
-      if (imgEl.dataset.processed === 'true') return;
-      imgEl.dataset.processed = 'true';
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const w = imgEl.naturalWidth;
-        const h = imgEl.naturalHeight;
-        if (!w || !h) return;
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(imgEl, 0, 0);
-
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-
-        const corners = [
-          0,
-          (w - 1) * 4,
-          ((h - 1) * w) * 4,
-          ((h - 1) * w + (w - 1)) * 4
-        ];
-
-        const bgColors = corners.map(idx => ({
-          r: data[idx],
-          g: data[idx + 1],
-          b: data[idx + 2],
-          a: data[idx + 3]
-        })).filter(c => c.a > 200);
-
-        if (bgColors.length === 0) return;
-
-        const tolerance = 58;
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          const isBg = bgColors.some(bg =>
-            Math.abs(r - bg.r) < tolerance &&
-            Math.abs(g - bg.g) < tolerance &&
-            Math.abs(b - bg.b) < tolerance
-          );
-          if (isBg) {
-            data[i + 3] = 0;
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        imgEl.src = canvas.toDataURL('image/png');
-      } catch (e) {
-        // Lewati jika gambar belum ter-host atau terkena CORS
-      }
-    }
-
-    // Menampilkan gambar PNG transparan + fallback siluet SVG jika gambar belum ada
+    // Menampilkan gambar langsung dari folder public + fallback siluet SVG jika gambar belum ada
     function renderCarVisual(model, isMoving, sizeClass = 'h-10 md:h-12') {
       const candidates = getCarImageCandidates(model);
       const m = (model || '').toLowerCase();
@@ -360,10 +307,9 @@
 
       return `
         <div class="inline-flex items-center shrink-0 ${isMoving ? 'car-moving' : ''}">
-          <img src="${candidates[0]}" alt="${model}" crossorigin="anonymous"
+          <img src="${candidates[0]}" alt="${model}"
                data-candidates='${JSON.stringify(candidates)}' data-idx="0"
-               onload="removeImageBg(this)"
-               class="${sizeClass} w-auto object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]"
+               class="${sizeClass} w-auto object-contain drop-shadow-md"
                onerror="handleCarImgError(this)">
           <svg viewBox="0 0 120 48" class="hidden w-16 h-8 md:w-20 md:h-9 drop-shadow-md">
             <path d="${pathD}" fill="${bodyColor}"/>
