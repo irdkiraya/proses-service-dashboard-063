@@ -21,8 +21,23 @@
   <header class="bg-gradient-to-r from-red-800 via-red-700 to-slate-900 border-b border-red-500/30 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
     <div class="flex items-center gap-4">
       <div class="bg-white px-3.5 py-2 rounded-xl shadow-md flex items-center gap-3">
-        <img src="public/logo-astra.png" alt="Logo Astra Daihatsu" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 hover:scale-105" onerror="this.style.display='none'">
-        <img src="public/ir-digital.png" alt="IR Digital" class="h-7 md:h-9 w-auto object-contain border-l border-slate-200 pl-3" onerror="this.style.display='none'">
+        <!-- Logo dari folder public -->
+        <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-8 md:h-10 w-auto object-contain transition-transform duration-300 hover:scale-105"
+             onerror="this.style.display='none'; document.getElementById('fallbackLogoMonitor').classList.remove('hidden');">
+        <img src="./public/ir-digital.png" alt="IR Digital" class="h-7 md:h-9 w-auto object-contain border-l border-slate-200 pl-3"
+             onerror="this.style.display='none';">
+        <!-- Fallback Emblem SVG Daihatsu jika file PNG belum ada -->
+        <div id="fallbackLogoMonitor" class="hidden flex items-center gap-2">
+          <svg viewBox="0 0 64 44" class="h-8 md:h-9 w-auto">
+            <ellipse cx="32" cy="22" rx="30" ry="20" fill="#dc2626"/>
+            <path d="M12 22 L32 8 L52 22 L32 36 Z" fill="#ffffff"/>
+            <path d="M22 22 L32 14 L42 22 L32 30 Z" fill="#dc2626"/>
+          </svg>
+          <div class="leading-none">
+            <div class="text-[10px] font-bold text-slate-500 tracking-widest">ASTRA</div>
+            <div class="text-base md:text-lg font-black text-red-700 tracking-tight">DAIHATSU</div>
+          </div>
+        </div>
       </div>
       <div>
         <h1 class="text-xl md:text-2xl font-extrabold tracking-wide text-white">ASTRA DAIHATSU CITRA RAYA</h1>
