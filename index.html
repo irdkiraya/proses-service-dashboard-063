@@ -413,7 +413,7 @@
     // Pemetaan file gambar mobil (mendukung nama tanpa spasi/kurung maupun nama lama)
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=4'; // Naikkan versi untuk menghapus cache kotak putih di TV
+      const v = '?v=5';
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
       if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp']);
@@ -457,10 +457,17 @@
       const isPickup = m.includes('pick');
       const isBoxy = m.includes('minibus') || m.includes('luxio');
       const isHatchback = m.includes('sirion');
+      const isWhiteCar = m.includes('minibus') || m.includes('sigra');
+
+      // Filter khusus mobil putih agar detail kaca, gril, & roda tidak silau/putih polos di TV
+      const tvColorFilter = isWhiteCar
+        ? 'brightness-90 contrast-125 saturate-110'
+        : 'contrast-105';
+
       const bodyColor = m.includes('xenia') ? '#ef4444'
-                      : m.includes('sigra') ? '#f8fafc'
+                      : m.includes('sigra') ? '#cbd5e1'
                       : m.includes('terios') ? '#38bdf8'
-                      : m.includes('luxio') ? '#cbd5e1'
+                      : m.includes('luxio') ? '#94a3b8'
                       : m.includes('sirion') ? '#f43f5e'
                       : '#f59e0b';
 
@@ -476,9 +483,9 @@
         <div class="inline-flex items-center shrink-0 ${isMoving ? 'car-moving' : ''}">
           <img src="${candidates[0]}" alt="${model}"
                data-candidates='${JSON.stringify(candidates)}' data-idx="0"
-               class="${sizeClass} w-auto object-contain drop-shadow-md bg-transparent"
+               class="${sizeClass} w-auto object-contain bg-transparent ${tvColorFilter}"
                onerror="handleCarImgError(this)">
-          <svg viewBox="0 0 120 48" class="hidden w-14 h-7 drop-shadow-md">
+          <svg viewBox="0 0 120 48" class="hidden w-14 h-7">
             <path d="${pathD}" fill="${bodyColor}"/>
             <circle cx="30" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
             <circle cx="90" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
