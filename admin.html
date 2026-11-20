@@ -36,7 +36,7 @@
       </a>
     </div>
 
-    <!-- Form Input Unit Baru dengan Pilihan Stall 1 - 6 -->
+    <!-- Form Input Unit Baru -->
     <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg mb-6">
       <h2 class="font-bold text-base text-white mb-4 flex items-center gap-2">
         <span class="text-red-500">+</span> Tambah Unit Baru
@@ -47,16 +47,19 @@
 
         <select id="tipe_mobil" required
                 class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
-          <option value="All New Xenia">All New Xenia</option>
-          <option value="Astra Daihatsu Sigra">Astra Daihatsu Sigra</option>
-          <option value="New Terios">New Terios</option>
-          <option value="Gran Max">Gran Max</option>
+          <option value="" disabled selected>-- Pilih Tipe Mobil --</option>
+          <option value="XENIA">XENIA</option>
+          <option value="GRANDMAX MINIBUS">GRANDMAX MINIBUS</option>
+          <option value="GRANDMAX PICK UP">GRANDMAX PICK UP</option>
+          <option value="SIGRA">SIGRA</option>
+          <option value="TERIOS">TERIOS</option>
+          <option value="LUXIO">LUXIO</option>
+          <option value="SIRION">SIRION</option>
         </select>
 
         <input type="text" id="mekanik" placeholder="Nama Mekanik" required
                class="bg-[#080c17] border border-slate-700 text-white placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:border-red-500">
 
-        <!-- Multiple Choice Pilihan Stall 1 s/d 6 -->
         <select id="stall" required
                 class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
           <option value="" disabled selected>-- Pilih Stall --</option>
@@ -91,8 +94,7 @@
       const container = document.getElementById('listAdmin');
       if (error) {
         return container.innerHTML = `<div class="bg-red-950/50 border border-red-500/40 text-red-300 p-4 rounded-xl text-sm">
-          <b>Gagal memuat data:</b> ${error.message}<br>
-          <span class="text-xs text-slate-400">Pastikan perintah SQL GRANT ALL pada Supabase sudah dijalankan.</span>
+          <b>Gagal memuat data:</b> ${error.message}
         </div>`;
       }
       if (data.length === 0) return container.innerHTML = `<p class="text-slate-500 text-center py-6">Belum ada unit dalam proses servis.</p>`;
@@ -114,7 +116,7 @@
               <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Siap Kasir)</option>
             </select>
 
-            <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
+            <button onclick="toggleCuci('${item.id}',${!item.cuci_selesai})" 
               class="px-3.5 py-2 rounded-xl text-sm font-bold border transition ${item.cuci_selesai ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'}">
               ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
             </button>
