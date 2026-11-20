@@ -410,18 +410,32 @@
       };
     }
 
+    // Pemetaan file gambar mobil (mendukung nama tanpa spasi/kurung maupun nama lama)
     function getCarImageCandidates(model) {
       const m = (model || '').toLowerCase().trim();
-      const v = '?v=3';
+      const v = '?v=4'; // Naikkan versi untuk menghapus cache kotak putih di TV
       const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
 
-      if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp', 'XENIA.PNG']);
-      if (m.includes('minibus')) return toUrls(['GRANDMAX MINIBUS (1).png', 'GRANDMAX MINIBUS.png', 'GRANDMAX MINIBUS (1).webp', 'GRANDMAX MINIBUS.webp']);
-      if (m.includes('pick')) return toUrls(['GRANDMAX PICK UP.png', 'GRANDMAX PICK UP.webp', 'GRANDMAX PICK UP.PNG']);
-      if (m.includes('sigra')) return toUrls(['SIGRA.png', 'SIGRA.webp', 'SIGRA.PNG']);
-      if (m.includes('terios')) return toUrls(['TERIOS.png', 'TERIOS.webp', 'TERIOS.PNG']);
-      if (m.includes('luxio')) return toUrls(['LUXIO.png', 'LUXIO.webp', 'LUXIO.PNG']);
-      if (m.includes('sirion')) return toUrls(['SIRION.png', 'SIRION.webp', 'SIRION.PNG']);
+      if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp']);
+      if (m.includes('minibus')) {
+        return toUrls([
+          'GRANDMAX-MINIBUS.png',
+          'GRANDMAX MINIBUS.png',
+          'GRANDMAX MINIBUS (1).png',
+          'GRANDMAX-MINIBUS.webp'
+        ]);
+      }
+      if (m.includes('pick')) {
+        return toUrls([
+          'GRANDMAX-PICK-UP.png',
+          'GRANDMAX PICK UP.png',
+          'GRANDMAX-PICK-UP.webp'
+        ]);
+      }
+      if (m.includes('sigra')) return toUrls(['SIGRA.png', 'SIGRA.webp']);
+      if (m.includes('terios')) return toUrls(['TERIOS.png', 'TERIOS.webp']);
+      if (m.includes('luxio')) return toUrls(['LUXIO.png', 'LUXIO.webp']);
+      if (m.includes('sirion')) return toUrls(['SIRION.png', 'SIRION.webp']);
       return toUrls(['XENIA.png']);
     }
 
@@ -462,7 +476,7 @@
         <div class="inline-flex items-center shrink-0 ${isMoving ? 'car-moving' : ''}">
           <img src="${candidates[0]}" alt="${model}"
                data-candidates='${JSON.stringify(candidates)}' data-idx="0"
-               class="${sizeClass} w-auto object-contain drop-shadow-md"
+               class="${sizeClass} w-auto object-contain drop-shadow-md bg-transparent"
                onerror="handleCarImgError(this)">
           <svg viewBox="0 0 120 48" class="hidden w-14 h-7 drop-shadow-md">
             <path d="${pathD}" fill="${bodyColor}"/>
@@ -531,7 +545,6 @@
           isCompact: true
         };
       }
-      // 9 sampai 15 Unit (3 Kolom × 5 Baris = 15 Unit pas di 1 layar TV)
       return {
         modeLabel: `3 Kolom Kompak (${count} Unit / Maks 15)`,
         trackCols: 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3',
@@ -570,7 +583,6 @@
         return;
       }
 
-      // Batasi maksimal 15 unit per layar TV, sisanya otomatis berganti halaman
       const totalPages = Math.ceil(vehicles.length / MAX_ITEMS_PER_SCREEN);
       if (currentPage >= totalPages) currentPage = 0;
       const visibleVehicles = vehicles.slice(
@@ -621,7 +633,6 @@
           }).join('')}
         </div>`;
       } else if (currentTheme === '2') {
-        // Tema Digital Board mendukung hingga 15 baris penuh dalam satu tabel
         container.innerHTML = `<div class="w-full max-w-[1600px] mx-auto bg-[#111726] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
           <table class="w-full text-left border-collapse">
             <thead class="bg-[#161e2e] text-slate-300 text-[11px] uppercase">
