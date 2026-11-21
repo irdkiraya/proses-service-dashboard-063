@@ -161,7 +161,7 @@
             <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
               <select onchange="updateStatus('${v.id}', this.value)" class="bg-[#111726] border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1">
                 <option value="Walk In Proses" ${v.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In</option>
-                <option value="Confirm" ${v.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC)</option>
+                <option value="Confirm" ${v.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (Final Inspection)</option>
                 <option value="Final Billed" ${v.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed</option>
                 <option value="Sudah Bayar" ${v.status_pkb === 'Sudah Bayar' ? 'selected' : ''}>4. Sudah Bayar</option>
               </select>
