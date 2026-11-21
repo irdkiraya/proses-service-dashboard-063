@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Reset & Optimasi Layar TV (Samsung, Xiaomi, LG, dll) */
+    /* Reset & Optimasi Layar TV (Samsung, Android TV, LG, dll) */
     * { box-sizing: border-box; }
     body { background-color: #080c17; color: #f8fafc; margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; }
     @keyframes spinWheel { 100% { transform: rotate(360deg); } }
@@ -55,6 +55,11 @@
     </div>
 
     <div class="flex items-center gap-3">
+      <!-- Tombol Mode Layar Penuh (Menghilangkan Bilah Alamat Browser di TV) -->
+      <button onclick="toggleFullScreen()" class="bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 transition cursor-pointer" title="Perbesar Layar Penuh TV">
+        <span>⛶</span> Fullscreen TV
+      </button>
+
       <button id="audioToggleBtn" onclick="toggleAudio()" class="bg-[#161e2e] hover:bg-[#1f293d] border border-slate-700 text-slate-200 font-semibold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-2 transition cursor-pointer">
         <span id="audioDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
         <span id="audioLabel">Suara Panggilan: OFF</span>
@@ -142,7 +147,7 @@
     🔔 <span id="callBannerText"></span>
   </div>
 
-  <!-- Area Utama Dashboard (Didesain Pas di Layar TV Tanpa Scrollbar Berlebih) -->
+  <!-- Area Utama Dashboard -->
   <main id="dashboardContainer" class="flex-1 px-5 py-1.5 flex flex-col justify-center overflow-hidden max-w-[1600px] w-full mx-auto"></main>
 
   <!-- Footer -->
@@ -172,6 +177,19 @@
     const announcedHandoverIds = new Set();
     const speechQueue = [];
     let isSpeaking = false;
+
+    // Fungsi untuk Mengaktifkan Mode Fullscreen di TV
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error("Error attempting to enable fullscreen:", err.message);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
 
     function updateDateTime() {
       const now = new Date();
@@ -367,59 +385,39 @@
       return { step: 4, pct: 100, isPaid: false, isFinished: true, label: 'Siap Kasir', sub: 'Siap Pembayaran Kasir', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', trackTag: 'KE KASIR' };
     }
 
-    function getCarImageCandidates(model) {
-      const m = (model || '').toLowerCase().trim();
-      const v = '?v=8';
-      const toUrls = (names) => names.map(name => `./public/${encodeURIComponent(name)}${v}`);
-
-      if (m.includes('xenia')) return toUrls(['XENIA.png', 'XENIA.webp']);
-      if (m.includes('minibus')) return toUrls(['GRANDMAX MINIBUS.png', 'grandmax-minibus.png']);
-      if (m.includes('pick')) return toUrls(['GRANDMAX PICK UP.png', 'grandmax-pick-up.png']);
-      if (m.includes('sigra')) return toUrls(['SIGRA.png', 'SIGRA.webp']);
-      if (m.includes('terios')) return toUrls(['TERIOS.png', 'TERIOS.webp']);
-      if (m.includes('luxio')) return toUrls(['LUXIO.png', 'LUXIO.webp']);
-      if (m.includes('sirion')) return toUrls(['SIRION.png', 'SIRION.webp']);
-      return toUrls(['XENIA.png']);
-    }
-
-    function handleCarImgError(img) {
-      const candidates = JSON.parse(img.dataset.candidates || '[]');
-      const nextIdx = parseInt(img.dataset.idx || '0', 10) + 1;
-      if (nextIdx < candidates.length) {
-        img.dataset.idx = nextIdx;
-        img.src = candidates[nextIdx];
-      } else {
-        img.style.display = 'none';
-        if (img.nextElementSibling) img.nextElementSibling.classList.remove('hidden');
-      }
-    }
-
+    /* Vektor SVG Presisi Langsung Ditampilkan di TV Tanpa Bergantung pada File External */
     function renderCarVisual(model, isMoving, sizeClass = 'h-10') {
-      const candidates = getCarImageCandidates(model);
       const m = (model || '').toLowerCase();
       const isPickup = m.includes('pick');
       const isBoxy = m.includes('minibus') || m.includes('luxio');
       const isHatchback = m.includes('sirion');
-      const isWhiteCar = m.includes('minibus') || m.includes('sigra');
 
-      const tvColorFilter = isWhiteCar ? 'brightness-90 contrast-125 saturate-110' : 'contrast-105';
-      const bodyColor = m.includes('xenia') ? '#ef4444' : m.includes('sigra') ? '#cbd5e1' : m.includes('terios') ? '#38bdf8' : m.includes('luxio') ? '#94a3b8' : m.includes('sirion') ? '#f43f5e' : '#f59e0b';
+      const bodyColor = m.includes('xenia') ? '#ef4444' 
+                      : m.includes('sigra') ? '#f8fafc' 
+                      : m.includes('terios') ? '#38bdf8' 
+                      : m.includes('luxio') ? '#94a3b8' 
+                      : m.includes('sirion') ? '#f43f5e' 
+                      : '#f59e0b';
 
-      const pathD = isPickup ? 'M10 32 L10 18 L52 18 L52 10 L82 10 L96 20 L110 22 L110 32 Z'
-                  : isBoxy ? 'M10 32 L12 10 L88 10 L102 20 L110 22 L110 32 Z'
-                  : isHatchback ? 'M16 32 L22 14 L74 12 L94 21 L106 23 L106 32 Z'
-                  : 'M10 32 L14 16 L32 10 L80 10 L96 19 L110 22 L110 32 Z';
+      const pathD = isPickup
+        ? 'M6 34 L6 20 L50 20 L50 12 L82 12 L96 22 L112 24 L112 34 Z'
+        : isBoxy
+        ? 'M6 34 L10 12 L90 12 L104 22 L112 24 L112 34 Z'
+        : isHatchback
+        ? 'M12 34 L18 16 L76 14 L96 23 L110 25 L110 34 Z'
+        : 'M8 34 L12 18 L32 12 L82 12 L98 22 L112 24 L112 34 Z';
 
       return `
         <div class="inline-flex items-center shrink-0 ${isMoving ? 'car-moving' : ''}">
-          <img src="${candidates[0]}" alt="${model}"
-               data-candidates='${JSON.stringify(candidates)}' data-idx="0"
-               class="${sizeClass} w-auto object-contain bg-transparent ${tvColorFilter}"
-               onerror="handleCarImgError(this)">
-          <svg viewBox="0 0 120 48" class="hidden w-14 h-7">
-            <path d="${pathD}" fill="${bodyColor}"/>
-            <circle cx="30" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
-            <circle cx="90" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
+          <svg viewBox="0 0 120 44" class="w-16 h-8 md:w-20 md:h-10 drop-shadow-md">
+            <ellipse cx="60" cy="38" rx="52" ry="3" fill="#000000" opacity="0.4"/>
+            <path d="${pathD}" fill="${bodyColor}" stroke="#334155" stroke-width="1.5"/>
+            <path d="${isBoxy ? 'M14 14 L38 14 L38 22 L14 22 Z M42 14 L84 14 L88 22 L42 22 Z' : 'M34 14 L50 14 L68 22 L28 22 Z'}" fill="#0f172a" opacity="0.85"/>
+            <path d="M108 24 L112 25 L112 28 L108 27 Z" fill="#facc15"/>
+            <circle cx="32" cy="34" r="7" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
+            <circle cx="32" cy="34" r="2.5" fill="#94a3b8"/>
+            <circle cx="92" cy="34" r="7" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
+            <circle cx="92" cy="34" r="2.5" fill="#94a3b8"/>
           </svg>
         </div>`;
     }
