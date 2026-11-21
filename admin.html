@@ -11,8 +11,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Service Info">
-  <link rel="apple-touch-icon" href="/icon-512.png">
-  <link rel="icon" type="image/png" href="/icon-512.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" type="image/png" href="/icon-192.png">
 
   <!-- External Libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,7 +30,7 @@
     <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
         <div class="bg-white px-3 py-1.5 rounded-xl shadow flex items-center gap-2">
-          <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-6 sm:h-7 w-auto object-contain"
+          <img src="/logo-astra.png" alt="Astra Daihatsu" class="h-6 sm:h-7 w-auto object-contain"
                onerror="this.style.display='none'; document.getElementById('fallbackLogoAdmin').classList.remove('hidden');">
           <div id="fallbackLogoAdmin" class="hidden bg-red-600 px-2 py-1 rounded text-white font-bold text-xs">DAIHATSU</div>
         </div>
@@ -129,6 +129,7 @@
     </div>
   </div>
 
+  <!-- Supabase & App Logic -->
   <script>
     const SUPABASE_URL = 'https://hqyrnilihllhpxdnwvsg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
@@ -236,6 +237,17 @@
 
     fetchVehicles();
     db.channel('admin-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, fetchVehicles).subscribe();
+  </script>
+
+  <!-- Registrasi Service Worker untuk PWA & PWABuilder -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => console.log('Service Worker terdaftar:', reg.scope))
+          .catch((err) => console.error('Gagal daftar Service Worker:', err));
+      });
+    }
   </script>
 </body>
 </html>
