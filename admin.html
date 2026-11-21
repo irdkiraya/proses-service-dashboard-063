@@ -179,13 +179,16 @@
 
     async function addVehicle(e) {
       e.preventDefault();
-      const no_polisi = document.getElementById('no_polisi').value.toUpperCase();
+      const no_polisi = document.getElementById('no_polisi').value.toUpperCase().trim();
       const tipe_mobil = document.getElementById('tipe_mobil').value;
-      const mekanik = document.getElementById('mekanik').value;
+      const mekanik = document.getElementById('mekanik').value.trim();
       const stall = document.getElementById('stall').value;
 
+      // Mengisi no_pkb otomatis dengan nomor unik berdasarkan waktu agar tidak error not-null constraint di database
+      const no_pkb = 'PKB-' + Date.now().toString().slice(-6);
+
       const { error } = await db.from('pkb_service').insert([{
-        no_polisi, tipe_mobil, mekanik, stall, status_pkb: 'Walk In Proses', cuci_selesai: false
+        no_pkb, no_polisi, tipe_mobil, mekanik, stall, status_pkb: 'Walk In Proses', cuci_selesai: false
       }]);
 
       if (!error) {
