@@ -1,25 +1,22 @@
 {
-  "name": "Astra Daihatsu Citra Raya - Service Info",
+  "name": "Service Info Astra Daihatsu Citra Raya",
   "short_name": "Service Info",
   "description": "Live Service Info Dashboard Astra Daihatsu Citra Raya",
   "start_url": "/admin.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#051024",
-  "theme_color": "#051024",
-  "orientation": "portrait",
+  "background_color": "#080c17",
+  "theme_color": "#080c17",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
