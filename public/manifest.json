@@ -1,7 +1,6 @@
 {
   "name": "Service Info Astra Daihatsu Citra Raya",
   "short_name": "Service Info",
-  "description": "Live Service Info Dashboard Astra Daihatsu Citra Raya",
   "start_url": "/admin.html",
   "scope": "/",
   "display": "standalone",
