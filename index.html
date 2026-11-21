@@ -113,7 +113,7 @@
 
       <div class="bg-gradient-to-br from-[#241e14] to-[#131622] border border-amber-500/25 rounded-xl px-3 py-1.5 flex items-center justify-between">
         <div>
-          <div class="text-[10px] font-extrabold text-amber-400 uppercase tracking-wide">CONFIRM (QC)</div>
+          <div class="text-[10px] font-extrabold text-amber-400 uppercase tracking-wide">CONFIRM (FINAL INSPECTION)</div>
           <div class="text-[10px] text-slate-400">QC Kepala Regu</div>
         </div>
         <div id="statQc" class="text-xl font-black text-white">0</div>
@@ -147,7 +147,7 @@
   <footer class="bg-[#0b101d] border-t border-slate-800/80 px-5 py-1.5 text-[11px] text-slate-400 flex flex-wrap justify-between items-center gap-2 shrink-0">
     <div class="flex flex-wrap gap-3">
       <span><b class="text-blue-400">1. Walk In:</b> Mekanik</span>
-      <span><b class="text-amber-400">2. Confirm:</b> QC Ka. Regu</span>
+      <span><b class="text-amber-400">2. Confirm:</b> Final Inspection</span>
       <span><b class="text-cyan-400">3. Cuci:</b> Proses Cuci</span>
       <span><b class="text-emerald-400">4. Kasir & Serah Terima:</b> Lunas</span>
     </div>
@@ -360,7 +360,7 @@
         return { step: 1, pct: 25, isPaid: false, isFinished: false, label: 'Mekanik', sub: `${v.mekanik || 'Mekanik'} (${v.stall || 'Stall'})`, badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30', trackTag: '' };
       }
       if (v.status_pkb === 'Confirm') {
-        return { step: 2, pct: 55, isPaid: false, isFinished: false, label: 'QC Ka.Regu', sub: 'Pemeriksaan Kualitas', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30', trackTag: '' };
+        return { step: 2, pct: 55, isPaid: false, isFinished: false, label: 'Final Inspection', sub: 'Pemeriksaan Kualitas', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30', trackTag: '' };
       }
       if ((v.status_pkb === 'Final Billed' || isPaid) && !v.cuci_selesai) {
         if (isPaid) {
@@ -530,7 +530,7 @@
                 <div class="w-full border-t border-dashed border-slate-700/80"></div>
                 <div class="absolute inset-x-3 flex justify-between text-[9px] font-bold text-slate-500 uppercase pointer-events-none">
                   <span class="${st.step >= 1 ? 'text-blue-400' : ''}">1. Mekanik</span>
-                  <span class="${st.step >= 2 ? 'text-amber-400' : ''}">2. QC</span>
+                  <span class="${st.step >= 2 ? 'text-amber-400' : ''}">2. Final Inspection</span>
                   <span class="${st.step >= 3 ? 'text-cyan-400' : ''}">3. Cuci</span>
                   <span class="${st.step === 4 ? 'text-emerald-400' : ''}">4. Kasir / Selesai</span>
                 </div>
@@ -613,7 +613,7 @@
       } else if (currentTheme === '4') {
         const cols = [
           { title: '1. Walk In Proses', step: 1, accent: 'border-blue-500 text-blue-400' },
-          { title: '2. Confirm (QC)', step: 2, accent: 'border-amber-500 text-amber-400' },
+          { title: '2. Final Inspection', step: 2, accent: 'border-amber-500 text-amber-400' },
           { title: '3. Cuci Kendaraan', step: 3, accent: 'border-cyan-500 text-cyan-400' },
           { title: '4. Kasir / Serah Terima', step: 4, accent: 'border-emerald-500 text-emerald-400' }
         ];
@@ -692,7 +692,7 @@
             </div>
           </div>
           <div class="bg-[#111726] border border-slate-800 rounded-2xl p-3 overflow-y-auto">
-            <h2 class="text-blue-400 font-extrabold text-xs md:text-sm mb-2">DALAM PENGERJAAN & QC (${inWork.length})</h2>
+            <h2 class="text-blue-400 font-extrabold text-xs md:text-sm mb-2">DALAM PENGERJAAN & FINAL INSPECTION (${inWork.length})</h2>
             <div class="space-y-1.5">
               ${inWork.map(v => {
                 const st = getStageInfo(v);
