@@ -73,8 +73,15 @@
 
           <div>
             <label class="block text-[11px] font-bold text-slate-400 mb-1">NAMA MEKANIK</label>
-            <input type="text" id="mekanik" required placeholder="Nama Mekanik" 
-                   class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+            <select id="mekanik" required class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+              <option value="">-- Pilih Mekanik --</option>
+              <option value="MUHAMMAD ALTOF MAULIDY">1. MUHAMMAD ALTOF MAULIDY</option>
+              <option value="DONY DWY RETNO HADIKUSUMO">2. DONY DWY RETNO HADIKUSUMO</option>
+              <option value="KAREJA SETIAWAN">3. KAREJA SETIAWAN</option>
+              <option value="YOGA PANGESTU">4. YOGA PANGESTU</option>
+              <option value="CEVI NANDA PRATAMA">5. CEVI NANDA PRATAMA</option>
+              <option value="M. FARREL BARAKBAH">6. M. FARREL BARAKBAH</option>
+            </select>
           </div>
 
           <div>
@@ -181,10 +188,9 @@
       e.preventDefault();
       const no_polisi = document.getElementById('no_polisi').value.toUpperCase().trim();
       const tipe_mobil = document.getElementById('tipe_mobil').value;
-      const mekanik = document.getElementById('mekanik').value.trim();
+      const mekanik = document.getElementById('mekanik').value;
       const stall = document.getElementById('stall').value;
 
-      // Mengisi no_pkb otomatis dengan nomor unik berdasarkan waktu agar tidak error not-null constraint di database
       const no_pkb = 'PKB-' + Date.now().toString().slice(-6);
 
       const { error } = await db.from('pkb_service').insert([{
