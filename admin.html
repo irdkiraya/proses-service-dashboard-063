@@ -2,85 +2,111 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kelola Unit - ASTRA DAIHATSU CITRA RAYA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kelola Unit - Astra Daihatsu Citra Raya</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background-color: #080c17; color: #f8fafc; }
+  </style>
 </head>
-<body class="bg-[#080c17] text-slate-100 p-4 md:p-8 font-sans min-h-screen">
-  <div class="max-w-5xl mx-auto">
-    <!-- Header Gelap dengan Aksen Merah & Logo -->
-    <div class="bg-[#0b101d] border border-slate-800 p-6 rounded-2xl shadow-xl mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-5">
-        <div class="bg-white px-4 py-2.5 rounded-xl shadow flex items-center gap-3 shrink-0">
-          <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-10 w-auto object-contain"
+<body class="min-h-screen p-3 md:p-6 font-sans antialiased">
+  <div class="max-w-5xl mx-auto space-y-4">
+
+    <!-- Header Panel Admin -->
+    <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="bg-white px-3 py-1.5 rounded-xl shadow flex items-center gap-2">
+          <img src="./public/logo-astra.png" alt="Astra Daihatsu" class="h-6 sm:h-7 w-auto object-contain"
                onerror="this.style.display='none'; document.getElementById('fallbackLogoAdmin').classList.remove('hidden');">
-          <img src="./public/ir-digital.png" alt="IR Digital" class="h-8 w-auto object-contain border-l border-slate-200 pl-3"
-               onerror="this.style.display='none';">
-          <div id="fallbackLogoAdmin" class="hidden bg-red-600 p-2 rounded-lg flex items-center justify-center">
-            <svg viewBox="0 0 64 44" class="h-6 w-auto">
-              <ellipse cx="32" cy="22" rx="28" ry="18" fill="none" stroke="#ffffff" stroke-width="4"/>
-              <path d="M14 22 L32 10 L50 22 L32 34 Z" fill="#ffffff"/>
-            </svg>
-          </div>
+          <div id="fallbackLogoAdmin" class="hidden bg-red-600 px-2 py-1 rounded text-white font-bold text-xs">DAIHATSU</div>
         </div>
-        <div class="flex flex-col justify-center">
-          <h1 class="text-xl md:text-2xl font-black tracking-wide text-white leading-tight">
+        <div class="text-right sm:text-left">
+          <h1 class="text-sm sm:text-base font-black tracking-wide text-white leading-tight">
             ASTRA DAIHATSU <span class="text-red-500">CITRA RAYA</span>
           </h1>
-          <p class="text-slate-400 text-sm mt-0.5">Panel Kontrol Proses Service, QC, Kasir & Cuci Kendaraan</p>
+          <p class="text-slate-400 text-[11px]">Panel Kontrol & Kelola Unit</p>
         </div>
       </div>
-      <a href="index.html" target="_blank" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-red-600/20 shrink-0 transition">
-        Buka Layar Monitor TV ↗
-      </a>
-    </div>
-
-    <!-- Form Input Unit Baru -->
-    <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg mb-6">
-      <h2 class="font-bold text-base text-white mb-4 flex items-center gap-2">
-        <span class="text-red-500">+</span> Tambah Unit Baru
-      </h2>
-      <form id="formPkb" class="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <input type="text" id="no_polisi" placeholder="No. Polisi (B 1234 XY)" required
-               class="bg-[#080c17] border border-slate-700 text-white placeholder-slate-500 p-2.5 rounded-xl uppercase font-bold focus:outline-none focus:border-red-500">
-
-        <select id="tipe_mobil" required
-                class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
-          <option value="" disabled selected>-- Pilih Tipe Mobil --</option>
-          <option value="XENIA">XENIA</option>
-          <option value="GRANDMAX MINIBUS">GRANDMAX MINIBUS</option>
-          <option value="GRANDMAX PICK UP">GRANDMAX PICK UP</option>
-          <option value="SIGRA">SIGRA</option>
-          <option value="TERIOS">TERIOS</option>
-          <option value="LUXIO">LUXIO</option>
-          <option value="SIRION">SIRION</option>
-        </select>
-
-        <input type="text" id="mekanik" placeholder="Nama Mekanik" required
-               class="bg-[#080c17] border border-slate-700 text-white placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:border-red-500">
-
-        <select id="stall" required
-                class="bg-[#080c17] border border-slate-700 text-white p-2.5 rounded-xl font-semibold focus:outline-none focus:border-red-500">
-          <option value="" disabled selected>-- Pilih Stall --</option>
-          <option value="Stall 1">Stall 1</option>
-          <option value="Stall 2">Stall 2</option>
-          <option value="Stall 3">Stall 3</option>
-          <option value="Stall 4">Stall 4</option>
-          <option value="Stall 5">Stall 5</option>
-          <option value="Stall 6">Stall 6</option>
-        </select>
-
-        <button type="submit" id="btnSubmit" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-red-600/20 transition">
-          Masuk Proses
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <a href="index.html" class="flex-1 sm:flex-none text-center bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-lg shadow-red-600/20 transition cursor-pointer">
+          📺 Buka Monitor TV
+        </a>
+        <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-3 py-2 rounded-xl border border-slate-700 transition cursor-pointer">
+          Keluar
         </button>
-      </form>
+      </div>
     </div>
 
-    <!-- Daftar Unit Dalam Proses -->
-    <div class="bg-[#111726] border border-slate-800 p-6 rounded-2xl shadow-lg">
-      <h2 class="font-bold text-base text-white mb-4">Daftar Kendaraan Dalam Proses</h2>
-      <div id="listAdmin" class="space-y-3">Menghubungkan ke database...</div>
+    <!-- Form Tambah Unit & Daftar Antrean -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      
+      <!-- Form Input Unit Baru -->
+      <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl space-y-3">
+        <h2 class="text-sm font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+          <span class="text-red-500 text-base">＋</span> Tambah Unit Baru
+        </h2>
+        
+        <form id="addForm" onsubmit="addVehicle(event)" class="space-y-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">NO. POLISI</label>
+            <input type="text" id="no_polisi" required placeholder="Contoh: B 1234 XY" 
+                   class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 uppercase font-mono font-bold">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">TIPE MOBIL</label>
+            <select id="tipe_mobil" required class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+              <option value="">-- Pilih Tipe Mobil --</option>
+              <option value="Rocky">Rocky</option>
+              <option value="Ayla">Ayla</option>
+              <option value="Grandmax Minibus">Grandmax Minibus</option>
+              <option value="Grandmax Pick Up">Grandmax Pick Up</option>
+              <option value="Xenia">Xenia</option>
+              <option value="Sigra">Sigra</option>
+              <option value="Terios">Terios</option>
+              <option value="Luxio">Luxio</option>
+              <option value="Sirion">Sirion</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">NAMA MEKANIK</label>
+            <input type="text" id="mekanik" required placeholder="Nama Mekanik" 
+                   class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">STALL BENGKEL</label>
+            <select id="stall" required class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+              <option value="">-- Pilih Stall --</option>
+              <option value="Stall 1">Stall 1</option>
+              <option value="Stall 2">Stall 2</option>
+              <option value="Stall 3">Stall 3</option>
+              <option value="Stall 4">Stall 4</option>
+              <option value="Stall Express">Stall Express</option>
+            </select>
+          </div>
+
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg shadow-red-600/25 transition cursor-pointer mt-2">
+            Masuk Proses Service
+          </button>
+        </form>
+      </div>
+
+      <!-- Daftar Unit Aktif -->
+      <div class="lg:col-span-2 bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+          <h2 class="text-sm font-extrabold text-white">Daftar Antrean Unit Aktif</h2>
+          <span id="totalUnitBadge" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/30">0 Unit</span>
+        </div>
+
+        <div id="vehicleListContainer" class="space-y-2.5 overflow-y-auto max-h-[500px] pr-1">
+          <div class="text-center text-xs text-slate-500 py-8">Memuat data unit...</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -89,97 +115,106 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function loadAdminData() {
-      const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
-      const container = document.getElementById('listAdmin');
-      if (error) {
-        return container.innerHTML = `<div class="bg-red-950/50 border border-red-500/40 text-red-300 p-4 rounded-xl text-sm">
-          <b>Gagal memuat data:</b> ${error.message}
-        </div>`;
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      const pwd = prompt('Masukkan Password Admin (Citra123):');
+      if (pwd === 'Citra123') {
+        localStorage.setItem('isLoggedIn', 'true');
+      } else {
+        alert('Password salah!');
+        window.location.href = 'index.html';
       }
-      if (data.length === 0) return container.innerHTML = `<p class="text-slate-500 text-center py-6">Belum ada unit dalam proses servis.</p>`;
-
-      container.innerHTML = data.map(item => `
-        <div class="border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#080c17]">
-          <div>
-            <div class="flex items-center gap-2.5 flex-wrap">
-              <span class="bg-white text-slate-950 font-black px-2.5 py-0.5 rounded-lg text-base">${item.no_polisi}</span>
-              <span class="bg-red-500/15 text-red-400 border border-red-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">${item.tipe_mobil}</span>
-              ${item.status_pkb === 'Sudah Bayar' ? '<span class="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-bold">✓ LUNAS</span>' : ''}
-            </div>
-            <p class="text-sm text-slate-400 mt-1.5">Mekanik: <b class="text-slate-200">${item.mekanik}</b> • <span class="text-amber-400 font-semibold">${item.stall}</span></p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <select onchange="updateStatus('${item.id}', this.value)" class="bg-[#161e2e] border border-slate-700 text-white p-2 rounded-xl text-sm font-semibold focus:outline-none">
-              <option value="Walk In Proses" ${item.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In Proses (Mekanik)</option>
-              <option value="Confirm" ${item.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC Kepala Regu)</option>
-              <option value="Final Billed" ${item.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed (Panggil Kasir)</option>
-              <option value="Sudah Bayar" ${item.status_pkb === 'Sudah Bayar' ? 'selected' : ''}>4. Sudah Bayar (Lunas / Tunggu Cuci)</option>
-            </select>
-
-            <button onclick="toggleCuci('${item.id}', ${!item.cuci_selesai})" 
-              class="px-3.5 py-2 rounded-xl text-sm font-bold border transition ${item.cuci_selesai ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'}">
-              ${item.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci Belum Selesai'}
-            </button>
-
-            <button onclick="hapusUnit('${item.id}')" class="bg-rose-500/15 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl text-sm font-bold hover:bg-rose-500/25 transition">
-              Serah Terima / Hapus
-            </button>
-          </div>
-        </div>
-      `).join('');
     }
 
-    document.getElementById('formPkb').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('btnSubmit');
-      btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
+    function handleLogout() {
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = 'index.html';
+    }
 
-      const { error } = await db.from('pkb_service').insert([{
-        no_pkb: '-',
-        no_polisi: document.getElementById('no_polisi').value.toUpperCase(),
-        tipe_mobil: document.getElementById('tipe_mobil').value,
-        mekanik: document.getElementById('mekanik').value,
-        stall: document.getElementById('stall').value,
-        status_pkb: 'Walk In Proses',
-        cuci_selesai: false
-      }]);
-
-      btn.disabled = false;
-      btn.textContent = 'Masuk Proses';
+    async function fetchVehicles() {
+      const { data, error } = await db.from('pkb_service').select('*').order('created_at', { ascending: true });
+      const container = document.getElementById('vehicleListContainer');
+      const badge = document.getElementById('totalUnitBadge');
 
       if (error) {
-        alert('Gagal menyimpan data: ' + error.message);
-      } else {
-        e.target.reset();
-        loadAdminData();
+        container.innerHTML = `<div class="text-red-400 text-xs text-center py-4">Gagal memuat data.</div>`;
+        return;
       }
-    });
+
+      badge.textContent = `${data.length} Unit`;
+
+      if (data.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-xs text-center py-8">Belum ada unit dalam antrean.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.map(v => {
+        return `
+          <div class="bg-[#080c17] border border-slate-800 p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-white text-slate-950 font-black text-xs px-2 py-0.5 rounded font-mono">${v.no_polisi}</span>
+                <span class="text-white font-bold text-xs">${v.tipe_mobil}</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">Mekanik: <b class="text-slate-200">${v.mekanik || '-'}</b> (${v.stall || '-'})</div>
+              <div class="text-[10px] text-red-400 font-semibold mt-0.5">Status: ${v.status_pkb}</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
+              <select onchange="updateStatus('${v.id}', this.value)" class="bg-[#111726] border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1">
+                <option value="Walk In Proses" ${v.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In</option>
+                <option value="Confirm" ${v.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (QC)</option>
+                <option value="Final Billed" ${v.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed</option>
+                <option value="Sudah Bayar" ${v.status_pkb === 'Sudah Bayar' ? 'selected' : ''}>4. Sudah Bayar</option>
+              </select>
+              <button onclick="toggleCuci('${v.id}', ${!v.cuci_selesai})" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${v.cuci_selesai ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'}">
+                ${v.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci'}
+              </button>
+              <button onclick="deleteVehicle('${v.id}')" class="bg-red-500/15 hover:bg-red-500/25 text-red-400 p-1.5 rounded-lg text-xs" title="Hapus">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addVehicle(e) {
+      e.preventDefault();
+      const no_polisi = document.getElementById('no_polisi').value.toUpperCase();
+      const tipe_mobil = document.getElementById('tipe_mobil').value;
+      const mekanik = document.getElementById('mekanik').value;
+      const stall = document.getElementById('stall').value;
+
+      const { error } = await db.from('pkb_service').insert([{
+        no_polisi, tipe_mobil, mekanik, stall, status_pkb: 'Walk In Proses', cuci_selesai: false
+      }]);
+
+      if (!error) {
+        document.getElementById('addForm').reset();
+        fetchVehicles();
+      } else {
+        alert('Gagal menambah unit: ' + error.message);
+      }
+    }
 
     async function updateStatus(id, status_pkb) {
       await db.from('pkb_service').update({ status_pkb }).eq('id', id);
-      loadAdminData();
+      fetchVehicles();
     }
 
     async function toggleCuci(id, cuci_selesai) {
       await db.from('pkb_service').update({ cuci_selesai }).eq('id', id);
-      loadAdminData();
+      fetchVehicles();
     }
 
-    async function hapusUnit(id) {
-      if (confirm('Unit sudah diserahkan ke pelanggan dan hapus dari layar monitor?')) {
+    async function deleteVehicle(id) {
+      if (confirm('Yakin ingin menghapus unit ini dari antrean?')) {
         await db.from('pkb_service').delete().eq('id', id);
-        loadAdminData();
+        fetchVehicles();
       }
     }
 
-    db.channel('admin-063')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, loadAdminData)
-      .subscribe();
-
-    loadAdminData();
+    fetchVehicles();
+    db.channel('admin-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, fetchVehicles).subscribe();
   </script>
 </body>
 </html>
