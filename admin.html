@@ -21,42 +21,59 @@
   <style>
     * { box-sizing: border-box; }
     body { background-color: #080c17; color: #f8fafc; }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #080c17; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
 <body class="min-h-screen p-3 md:p-6 font-sans antialiased relative">
 
-  <!-- MODAL LOGIN KUSTOM YANG DINAMIS -->
-  <div id="loginModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#111726] border border-slate-800 w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
-      <div class="text-center space-y-1">
-        <div class="inline-flex bg-red-600/20 text-red-500 p-3 rounded-xl mb-1">
-          🔐
+  <!-- MODAL LOGIN KUSTOM YANG AMAN & DINAMIS -->
+  <div id="loginModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-[#111726] border border-slate-800 w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-5">
+      <div class="text-center space-y-1.5">
+        <div class="inline-flex bg-red-600/15 border border-red-500/20 text-red-500 p-3.5 rounded-2xl mb-1 shadow-inner">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
         </div>
-        <h2 class="text-base font-black text-white">Autentikasi Admin</h2>
-        <p class="text-slate-400 text-xs">Masukkan password untuk mengakses panel kontrol.</p>
+        <h2 class="text-base font-black tracking-wide text-white">Autentikasi Admin</h2>
+        <p class="text-slate-400 text-xs">Masukkan kode akses untuk mengelola antrean service.</p>
       </div>
 
-      <form onsubmit="handleLogin(event)" class="space-y-3">
-        <div>
-          <input type="password" id="adminPasswordInput" required placeholder="Masukkan Password (Citra123)" 
-                 class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-mono text-center tracking-widest">
-          <p id="loginErrorMsg" class="text-red-400 text-[10px] text-center mt-1.5 hidden">Password salah! Silakan coba lagi.</p>
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div class="relative">
+          <input type="password" id="adminPasswordInput" required placeholder="••••••••••••" 
+                 class="w-full bg-[#080c17] border border-slate-700 rounded-xl pl-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-red-500 font-mono text-center tracking-widest transition">
+          <button type="button" onclick="togglePasswordVisibility()" title="Tampilkan/Sembunyikan Password"
+                  class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-white transition cursor-pointer">
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
         </div>
+        
+        <p id="loginErrorMsg" class="text-red-400 text-[11px] font-medium text-center bg-red-500/10 border border-red-500/20 py-1.5 rounded-lg hidden">
+          ⚠️ Kode akses salah! Silakan periksa kembali.
+        </p>
 
-        <div class="flex gap-2 pt-1">
-          <a href="index.html" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2.5 rounded-xl text-center transition">
-            Kembali
+        <div class="flex gap-2.5 pt-1">
+          <a href="index.html" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-3 rounded-xl text-center transition">
+            Batal
           </a>
-          <button type="submit" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg shadow-red-600/25 transition">
-            Masuk
+          <button type="submit" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-3 rounded-xl shadow-lg shadow-red-600/25 transition cursor-pointer">
+            Masuk Panel
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- KONTEN UTAMA DASHBOARD -->
-  <div class="max-w-5xl mx-auto space-y-4">
+  <!-- KONTEN UTAMA DASHBOARD ADMIN -->
+  <div id="mainContent" class="max-w-5xl mx-auto space-y-4">
 
     <!-- Header Panel Admin -->
     <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -87,7 +104,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       
       <!-- Form Input Unit Baru -->
-      <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl space-y-3">
+      <div class="bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl space-y-3 h-fit">
         <h2 class="text-sm font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-2">
           <span class="text-red-500 text-base">＋</span> Tambah Unit Baru
         </h2>
@@ -140,7 +157,7 @@
             </select>
           </div>
 
-          <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg shadow-red-600/25 transition cursor-pointer mt-2">
+          <button type="submit" id="submitBtn" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg shadow-red-600/25 transition cursor-pointer mt-2">
             Masuk Proses Service
           </button>
         </form>
@@ -150,10 +167,10 @@
       <div class="lg:col-span-2 bg-[#111726] border border-slate-800 p-4 rounded-2xl shadow-xl flex flex-col">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
           <h2 class="text-sm font-extrabold text-white">Daftar Antrean Unit Aktif</h2>
-          <span id="totalUnitBadge" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/30">0 Unit</span>
+          <span id="totalUnitBadge" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-red-500/30">0 Unit</span>
         </div>
 
-        <div id="vehicleListContainer" class="space-y-2.5 overflow-y-auto max-h-[500px] pr-1">
+        <div id="vehicleListContainer" class="space-y-2.5 overflow-y-auto max-h-[520px] pr-1">
           <div class="text-center text-xs text-slate-500 py-8">Memuat data unit...</div>
         </div>
       </div>
@@ -167,9 +184,15 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Cek Status Login dengan Modal Kustom
+    // Proteksi Halaman Login
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('mainContent').classList.add('blur-sm', 'pointer-events-none', 'select-none');
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('adminPasswordInput');
+      input.type = input.type === 'password' ? 'text' : 'password';
     }
 
     function handleLogin(e) {
@@ -180,10 +203,12 @@
       if (pwd === 'Citra123') {
         localStorage.setItem('isLoggedIn', 'true');
         document.getElementById('loginModal').classList.add('hidden');
-        fetchVehicles();
+        document.getElementById('mainContent').classList.remove('blur-sm', 'pointer-events-none', 'select-none');
+        initDashboard();
       } else {
         errorMsg.classList.remove('hidden');
         document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminPasswordInput').focus();
       }
     }
 
@@ -198,7 +223,7 @@
       const badge = document.getElementById('totalUnitBadge');
 
       if (error) {
-        container.innerHTML = `<div class="text-red-400 text-xs text-center py-4">Gagal memuat data.</div>`;
+        container.innerHTML = `<div class="text-red-400 text-xs text-center py-4">Gagal memuat data dari server.</div>`;
         return;
       }
 
@@ -211,7 +236,7 @@
 
       container.innerHTML = data.map(v => {
         return `
-          <div class="bg-[#080c17] border border-slate-800 p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="bg-[#080c17] border border-slate-800 hover:border-slate-700 transition p-3 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <div class="flex items-center gap-2">
                 <span class="bg-white text-slate-950 font-black text-xs px-2 py-0.5 rounded font-mono">${v.no_polisi}</span>
@@ -221,16 +246,16 @@
               <div class="text-[10px] text-red-400 font-semibold mt-0.5">Status: ${v.status_pkb}</div>
             </div>
             <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800">
-              <select onchange="updateStatus('${v.id}', this.value)" class="bg-[#111726] border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1">
+              <select onchange="updateStatus('${v.id}', this.value)" class="bg-[#111726] border border-slate-700 text-slate-200 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-red-500">
                 <option value="Walk In Proses" ${v.status_pkb === 'Walk In Proses' ? 'selected' : ''}>1. Walk In</option>
                 <option value="Confirm" ${v.status_pkb === 'Confirm' ? 'selected' : ''}>2. Confirm (Final Inspection)</option>
                 <option value="Final Billed" ${v.status_pkb === 'Final Billed' ? 'selected' : ''}>3. Final Billed</option>
                 <option value="Sudah Bayar" ${v.status_pkb === 'Sudah Bayar' ? 'selected' : ''}>4. Sudah Bayar</option>
               </select>
-              <button onclick="toggleCuci('${v.id}', ${!v.cuci_selesai})" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${v.cuci_selesai ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'}">
+              <button onclick="toggleCuci('${v.id}', ${!v.cuci_selesai})" class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${v.cuci_selesai ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'}">
                 ${v.cuci_selesai ? '✓ Cuci Selesai' : '🚿 Cuci'}
               </button>
-              <button onclick="deleteVehicle('${v.id}')" class="bg-red-500/15 hover:bg-red-500/25 text-red-400 p-1.5 rounded-lg text-xs" title="Hapus">
+              <button onclick="deleteVehicle('${v.id}')" class="bg-red-500/15 hover:bg-red-500/25 text-red-400 p-1.5 rounded-lg text-xs transition cursor-pointer" title="Hapus">
                 🗑️
               </button>
             </div>
@@ -241,16 +266,22 @@
 
     async function addVehicle(e) {
       e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
       const no_polisi = document.getElementById('no_polisi').value.toUpperCase().trim();
       const tipe_mobil = document.getElementById('tipe_mobil').value;
       const mekanik = document.getElementById('mekanik').value;
       const stall = document.getElementById('stall').value;
-
       const no_pkb = 'PKB-' + Date.now().toString().slice(-6);
 
       const { error } = await db.from('pkb_service').insert([{
         no_pkb, no_polisi, tipe_mobil, mekanik, stall, status_pkb: 'Walk In Proses', cuci_selesai: false
       }]);
+
+      btn.disabled = false;
+      btn.textContent = 'Masuk Proses Service';
 
       if (!error) {
         document.getElementById('addForm').reset();
@@ -277,10 +308,13 @@
       }
     }
 
-    // Hanya ambil data jika sudah login
-    if (localStorage.getItem('isLoggedIn') === 'true') {
+    function initDashboard() {
       fetchVehicles();
       db.channel('admin-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, fetchVehicles).subscribe();
+    }
+
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      initDashboard();
     }
   </script>
 
