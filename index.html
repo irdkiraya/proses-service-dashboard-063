@@ -12,9 +12,11 @@
     @keyframes spinWheel { 100% { transform: rotate(360deg); } }
     @keyframes driveBounce { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2px); } }
     @keyframes bubbleFloat { 0% { transform: translateY(0) scale(0.8); opacity: 0.9; } 100% { transform: translateY(-14px) scale(1.2); opacity: 0; } }
+    @keyframes fadeSlide { from { opacity: 0.4; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     .car-moving { animation: driveBounce 0.6s infinite ease-in-out; }
     .wheel-spin { transform-origin: center; animation: spinWheel 0.7s linear infinite; }
     .wash-bubble { animation: bubbleFloat 1.4s infinite ease-out; }
+    .page-transition { animation: fadeSlide 0.35s ease-out; }
   </style>
 </head>
 <body class="flex flex-col font-sans select-none">
@@ -44,8 +46,8 @@
           <span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wider">
             LIVE
           </span>
-          <span id="pageIndicator" class="hidden bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-            Halaman 1/1
+          <span id="pageIndicator" class="hidden bg-red-600/20 text-red-300 border border-red-500/40 text-xs font-extrabold px-3 py-0.5 rounded-full animate-pulse">
+            Display 1/1
           </span>
         </div>
         <p class="text-slate-400 text-xs font-medium mt-0.5">Informasi Real - Time Proses Service</p>
@@ -90,7 +92,7 @@
         </div>
       </div>
       <div id="densityBadge" class="text-[11px] font-semibold text-slate-400 bg-[#111726] border border-slate-800 px-2.5 py-0.5 rounded-lg">
-        Mode Tampilan: Otomatis
+        Mode Tampilan: Otomatis (Maks 8 Unit/Display)
       </div>
     </div>
 
@@ -142,7 +144,8 @@
     🔔 <span id="callBannerText"></span>
   </div>
 
-  <main id="dashboardContainer" class="flex-1 px-5 py-1.5 flex flex-col justify-center overflow-hidden max-w-[1600px] w-full mx-auto"></main>
+  <!-- Area Utama Dashboard -->
+  <main id="dashboardContainer" class="flex-1 px-5 py-2 flex flex-col justify-center overflow-hidden max-w-[1600px] w-full mx-auto"></main>
 
   <footer class="bg-[#0b101d] border-t border-slate-800/80 px-5 py-1.5 text-[11px] text-slate-400 flex flex-wrap justify-between items-center gap-2 shrink-0">
     <div class="flex flex-wrap gap-3">
@@ -151,7 +154,7 @@
       <span><b class="text-cyan-400">3. Cuci:</b> Proses Cuci</span>
       <span><b class="text-emerald-400">4. Kasir & Serah Terima:</b> Lunas</span>
     </div>
-    <span class="text-slate-500">ASTRA DAIHTSU CITRA RAYA • Samsung & Android TV Optimized</span>
+    <span class="text-slate-500">ASTRA DAIHATSU CITRA RAYA • Samsung & Android TV Optimized</span>
   </footer>
 
   <script>
@@ -164,7 +167,11 @@
     let audioEnabled = false;
     let isFirstLoad = true;
     let currentPage = 0;
-    const MAX_ITEMS_PER_SCREEN = 15;
+
+    // Maksimal 8 unit per 1 display (1-8 Display 1, 9-16 Display 2, dst.)
+    const MAX_ITEMS_PER_SCREEN = 8;
+    // Pergantian otomatis setiap 4 detik (berada di rentang 3-5 detik)
+    const AUTO_ROTATE_MS = 4000;
 
     const announcedBilledIds = new Set();
     const announcedHandoverIds = new Set();
@@ -191,6 +198,7 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
+    // Auto-paging setiap 4 detik jika unit > 8
     setInterval(() => {
       if (vehicles.length > MAX_ITEMS_PER_SCREEN) {
         const totalPages = Math.ceil(vehicles.length / MAX_ITEMS_PER_SCREEN);
@@ -199,7 +207,7 @@
       } else if (currentPage !== 0) {
         currentPage = 0;
       }
-    }, 8000);
+    }, AUTO_ROTATE_MS);
 
     function toggleAudio() {
       audioEnabled = !audioEnabled;
@@ -403,7 +411,7 @@
       }
     }
 
-    function renderCarVisual(model, isMoving, sizeClass = 'h-10') {
+    function renderCarVisual(model, isMoving, sizeClass = 'h-11') {
       const candidates = getCarImageCandidates(model);
       const m = (model || '').toLowerCase();
       const isPickup = m.includes('pick');
@@ -434,7 +442,7 @@
                data-candidates='${JSON.stringify(candidates)}' data-idx="0"
                class="${sizeClass} w-auto object-contain bg-transparent ${tvColorFilter}"
                onerror="handleCarImgError(this)">
-          <svg viewBox="0 0 120 48" class="hidden w-14 h-7">
+          <svg viewBox="0 0 120 48" class="hidden w-16 h-8">
             <path d="${pathD}" fill="${bodyColor}"/>
             <circle cx="30" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
             <circle cx="90" cy="34" r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2" class="${isMoving ? 'wheel-spin' : ''}"/>
@@ -443,11 +451,11 @@
     }
 
     function renderDualBadges(st, isCompact) {
-      const textSize = isCompact ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-0.5';
+      const textSize = isCompact ? 'text-[11px] px-2.5 py-0.5' : 'text-xs px-3 py-1';
       return `
-        <div class="flex items-center gap-1 flex-wrap justify-end">
+        <div class="flex items-center gap-1.5 flex-wrap justify-end">
           ${st.isPaid ? `<span class="${textSize} rounded-full font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>` : ''}
-          <span class="${textSize} rounded-full font-bold border ${st.badge} truncate max-w-[210px]">${st.label} • ${st.sub}</span>
+          <span class="${textSize} rounded-full font-bold border ${st.badge} truncate max-w-[230px]">${st.label} • ${st.sub}</span>
         </div>`;
     }
 
@@ -467,14 +475,55 @@
       renderDashboard();
     }
 
+    /* Proporsional & Besar untuk TV (Maks 8 Unit per Display: 1-4 Baris Penuh, 5-8 Grid 2x4) */
     function getDynamicScale(count) {
-      if (count <= 4) {
-        return { modeLabel: `1 Kolom Lega (${count} Unit)`, trackCols: 'grid-cols-1', cardCols: count <= 2 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2', gap: 'gap-3', cardPad: 'p-3.5', trackHeight: 'h-14', carSize: 'h-11', plateText: 'text-sm md:text-base px-2.5 py-0.5', modelText: 'text-sm md:text-base', tablePad: 'p-3.5', tableText: 'text-sm md:text-base', isCompact: false };
+      if (count <= 3) {
+        return {
+          modeLabel: `1 Kolom Lega (${count} Unit)`,
+          trackCols: 'grid-cols-1',
+          cardCols: count === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2',
+          gap: 'gap-3.5',
+          cardPad: 'p-4',
+          trackHeight: 'h-16',
+          carSize: 'h-12',
+          plateText: 'text-base md:text-lg px-3 py-0.5',
+          modelText: 'text-base md:text-lg',
+          tablePad: 'p-3.5',
+          tableText: 'text-sm md:text-base',
+          isCompact: false
+        };
       }
-      if (count <= 8) {
-        return { modeLabel: `2 Kolom Sedang (${count} Unit)`, trackCols: 'grid-cols-1 lg:grid-cols-2', cardCols: 'grid-cols-1 lg:grid-cols-2', gap: 'gap-2', cardPad: 'p-2', trackHeight: 'h-10', carSize: 'h-8', plateText: 'text-xs md:text-sm px-2 py-0.5', modelText: 'text-xs md:text-sm', tablePad: 'p-2', tableText: 'text-xs md:text-sm', isCompact: true };
+      if (count === 4) {
+        return {
+          modeLabel: `4 Baris Proporsional (4 Unit)`,
+          trackCols: 'grid-cols-1',
+          cardCols: 'grid-cols-1 lg:grid-cols-2',
+          gap: 'gap-2.5',
+          cardPad: 'px-4 py-2.5',
+          trackHeight: 'h-12',
+          carSize: 'h-10',
+          plateText: 'text-sm md:text-base px-2.5 py-0.5',
+          modelText: 'text-sm md:text-base',
+          tablePad: 'p-3',
+          tableText: 'text-sm md:text-base',
+          isCompact: false
+        };
       }
-      return { modeLabel: `3 Kolom Kompak (${count} Unit / Maks 15)`, trackCols: 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3', cardCols: 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3', gap: 'gap-1.5', cardPad: 'px-2.5 py-1.5', trackHeight: 'h-8', carSize: 'h-6', plateText: 'text-xs px-2 py-0.5', modelText: 'text-xs', tablePad: 'px-2 py-1', tableText: 'text-xs', isCompact: true };
+      // 5 s/d 8 Unit -> Grid 2 Kolom x 4 Baris Proporsional (Tetap Besar & Terbaca Jelas di TV)
+      return {
+        modeLabel: `2 Kolom Proporsional (${count} Unit / Maks 8)`,
+        trackCols: 'grid-cols-1 lg:grid-cols-2',
+        cardCols: 'grid-cols-1 lg:grid-cols-2',
+        gap: 'gap-2.5',
+        cardPad: 'px-3.5 py-2.5',
+        trackHeight: 'h-12',
+        carSize: 'h-10',
+        plateText: 'text-sm md:text-base px-2.5 py-0.5',
+        modelText: 'text-sm md:text-base',
+        tablePad: 'px-3 py-2',
+        tableText: 'text-xs md:text-sm',
+        isCompact: true
+      };
     }
 
     function renderDashboard() {
@@ -499,11 +548,14 @@
 
       const totalPages = Math.ceil(vehicles.length / MAX_ITEMS_PER_SCREEN);
       if (currentPage >= totalPages) currentPage = 0;
-      const visibleVehicles = vehicles.slice(currentPage * MAX_ITEMS_PER_SCREEN, (currentPage + 1) * MAX_ITEMS_PER_SCREEN);
+      const startIndex = currentPage * MAX_ITEMS_PER_SCREEN;
+      const visibleVehicles = vehicles.slice(startIndex, startIndex + MAX_ITEMS_PER_SCREEN);
 
       const pageBadge = document.getElementById('pageIndicator');
       if (totalPages > 1) {
-        pageBadge.textContent = `Halaman ${currentPage + 1}/${totalPages}`;
+        const rangeStart = startIndex + 1;
+        const rangeEnd = startIndex + visibleVehicles.length;
+        pageBadge.textContent = `Display ${currentPage + 1}/${totalPages} (Unit ${rangeStart}-${rangeEnd})`;
         pageBadge.classList.remove('hidden');
       } else {
         pageBadge.classList.add('hidden');
@@ -513,22 +565,22 @@
       document.getElementById('densityBadge').textContent = `Tata Letak: ${scale.modeLabel}`;
 
       if (currentTheme === '1') {
-        container.innerHTML = `<div class="grid ${scale.trackCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+        container.innerHTML = `<div class="grid ${scale.trackCols} ${scale.gap} w-full max-w-[1600px] mx-auto page-transition">
           ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
-            const leftPos = st.step === 1 ? '6%' : st.step === 2 ? '36%' : st.step === 3 ? '62%' : '80%';
+            const leftPos = st.step === 1 ? '6%' : st.step === 2 ? '35%' : st.step === 3 ? '61%' : '79%';
             return `
             <div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/90'} rounded-xl ${scale.cardPad} shadow-md flex flex-col justify-between">
-              <div class="flex justify-between items-center mb-1 gap-1">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="bg-white text-slate-950 font-black rounded-md shrink-0 ${scale.plateText}">${v.no_polisi}</span>
+              <div class="flex justify-between items-center mb-1.5 gap-1.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="bg-white text-slate-950 font-black rounded-md shrink-0 font-mono ${scale.plateText}">${v.no_polisi}</span>
                   <span class="font-bold text-slate-100 truncate ${scale.modelText}">${v.tipe_mobil}</span>
                 </div>
                 ${renderDualBadges(st, scale.isCompact)}
               </div>
-              <div class="relative ${scale.trackHeight} bg-[#080c17] rounded-lg border border-slate-800/80 px-3 flex items-center overflow-hidden">
+              <div class="relative ${scale.trackHeight} bg-[#080c17] rounded-lg border border-slate-800/80 px-4 flex items-center overflow-hidden">
                 <div class="w-full border-t border-dashed border-slate-700/80"></div>
-                <div class="absolute inset-x-3 flex justify-between text-[9px] font-bold text-slate-500 uppercase pointer-events-none">
+                <div class="absolute inset-x-4 flex justify-between text-[10px] md:text-[11px] font-bold text-slate-500 uppercase pointer-events-none">
                   <span class="${st.step >= 1 ? 'text-blue-400' : ''}">1. Mekanik</span>
                   <span class="${st.step >= 2 ? 'text-amber-400' : ''}">2. Final Inspection</span>
                   <span class="${st.step >= 3 ? 'text-cyan-400' : ''}">3. Cuci</span>
@@ -536,17 +588,17 @@
                 </div>
                 <div class="absolute transition-all duration-1000 ease-out flex items-center" style="left: ${leftPos};">
                   ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
-                  ${st.step === 3 ? '<span class="wash-bubble text-cyan-300 text-xs -ml-1">🫧</span>' : ''}
-                  ${st.trackTag ? `<span class="bg-emerald-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded ml-1 whitespace-nowrap">${st.trackTag}</span>` : ''}
+                  ${st.step === 3 ? '<span class="wash-bubble text-cyan-300 text-sm -ml-1">🫧</span>' : ''}
+                  ${st.trackTag ? `<span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded ml-1.5 whitespace-nowrap shadow">${st.trackTag}</span>` : ''}
                 </div>
               </div>
             </div>`;
           }).join('')}
         </div>`;
       } else if (currentTheme === '2') {
-        container.innerHTML = `<div class="w-full max-w-[1600px] mx-auto bg-[#111726] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        container.innerHTML = `<div class="w-full max-w-[1600px] mx-auto bg-[#111726] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl page-transition">
           <table class="w-full text-left border-collapse">
-            <thead class="bg-[#161e2e] text-slate-300 text-[11px] uppercase">
+            <thead class="bg-[#161e2e] text-slate-300 text-xs uppercase">
               <tr>
                 <th class="${scale.tablePad}">No.</th>
                 <th class="${scale.tablePad}">No. Polisi</th>
@@ -559,18 +611,18 @@
             <tbody class="divide-y divide-slate-800/80 ${scale.tableText}">
               ${visibleVehicles.map((v, idx) => {
                 const st = getStageInfo(v);
-                const rowNum = currentPage * MAX_ITEMS_PER_SCREEN + idx + 1;
+                const rowNum = startIndex + idx + 1;
                 return `<tr class="${st.isFinished ? 'bg-emerald-950/25' : ''}">
                   <td class="${scale.tablePad} text-slate-500 font-mono font-bold">${rowNum}</td>
                   <td class="${scale.tablePad} font-black text-red-400 font-mono">${v.no_polisi}</td>
-                  <td class="${scale.tablePad} font-bold text-white flex items-center gap-2">
-                    ${renderCarVisual(v.tipe_mobil, false, scale.isCompact ? 'h-6' : 'h-7')}
+                  <td class="${scale.tablePad} font-bold text-white flex items-center gap-2.5">
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-8')}
                     <span>${v.tipe_mobil}</span>
                   </td>
                   <td class="${scale.tablePad}">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                      <span class="px-2.5 py-0.5 rounded text-[11px] font-bold border ${st.badge}">${st.label}</span>
+                      ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                      <span class="px-2.5 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</span>
                     </div>
                   </td>
                   <td class="${scale.tablePad} text-xs font-bold ${v.cuci_selesai ? 'text-emerald-400' : 'text-cyan-400'}">${v.cuci_selesai ? '✓ Selesai Cuci' : '🚿 Sedang Dicuci'}</td>
@@ -581,29 +633,29 @@
           </table>
         </div>`;
       } else if (currentTheme === '3') {
-        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto page-transition">
           ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
-            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex flex-col justify-between gap-1.5">
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex flex-col justify-between gap-2">
               <div class="flex justify-between items-center gap-2">
-                <div class="flex items-center gap-2 min-w-0">
+                <div class="flex items-center gap-2.5 min-w-0">
                   ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
                   <div class="min-w-0">
-                    <h3 class="${scale.isCompact ? 'text-sm md:text-base' : 'text-lg'} font-black text-white leading-tight">${v.no_polisi}</h3>
-                    <p class="text-red-400 font-bold text-xs truncate">${v.tipe_mobil}</p>
+                    <h3 class="text-base md:text-lg font-black text-white leading-tight font-mono">${v.no_polisi}</h3>
+                    <p class="text-red-400 font-bold text-xs md:text-sm truncate">${v.tipe_mobil}</p>
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-1 shrink-0">
-                  ${st.isPaid ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${st.badge}">${st.label}</span>
+                  ${st.isPaid ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                  <span class="px-3 py-0.5 rounded-full text-xs font-bold border ${st.badge}">${st.label}</span>
                 </div>
               </div>
               <div>
-                <div class="flex justify-between text-[10px] mb-0.5 text-slate-400">
+                <div class="flex justify-between text-xs mb-1 text-slate-400">
                   <span class="truncate">${st.sub}</span>
                   <span class="font-bold text-white ml-2">${st.pct}%</span>
                 </div>
-                <div class="w-full h-1.5 bg-[#080c17] rounded-full overflow-hidden">
+                <div class="w-full h-2 bg-[#080c17] rounded-full overflow-hidden">
                   <div class="h-full bg-gradient-to-r from-red-600 to-emerald-400 transition-all duration-700" style="width:${st.pct}%"></div>
                 </div>
               </div>
@@ -617,52 +669,50 @@
           { title: '3. Cuci Kendaraan', step: 3, accent: 'border-cyan-500 text-cyan-400' },
           { title: '4. Kasir / Serah Terima', step: 4, accent: 'border-emerald-500 text-emerald-400' }
         ];
-        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2.5 w-full max-w-[1600px] mx-auto h-full">
+        container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 w-full max-w-[1600px] mx-auto h-full page-transition">
           ${cols.map(c => {
             const list = visibleVehicles.filter(v => getStageInfo(v).step === c.step);
-            return `<div class="bg-[#111726] border-t-4 ${c.accent} rounded-xl p-2.5 flex flex-col gap-1.5 overflow-hidden">
-              <div class="flex justify-between items-center border-b border-slate-800 pb-1">
-                <h3 class="font-bold text-xs">${c.title}</h3>
-                <span class="bg-[#080c17] text-white text-[10px] px-2 py-0.2 rounded-full font-bold">${list.length}</span>
+            return `<div class="bg-[#111726] border-t-4 ${c.accent} rounded-xl p-3 flex flex-col gap-2 overflow-hidden">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                <h3 class="font-bold text-sm">${c.title}</h3>
+                <span class="bg-[#080c17] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">${list.length}</span>
               </div>
-              <div class="space-y-1 overflow-y-auto">
+              <div class="space-y-1.5 overflow-y-auto">
                 ${list.map(v => {
                   const st = getStageInfo(v);
-                  return `<div class="bg-[#080c17] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/80'} px-2 py-1.5 rounded-lg flex items-center justify-between gap-2">
+                  return `<div class="bg-[#080c17] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800/80'} px-2.5 py-2 rounded-lg flex items-center justify-between gap-2">
                     <div class="min-w-0">
-                      <div class="flex items-center gap-1">
-                        <span class="font-black text-xs text-white">${v.no_polisi}</span>
-                        ${st.isPaid ? '<span class="text-[8px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1 py-0.2 rounded">✓ LUNAS</span>' : ''}
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-black text-sm text-white font-mono">${v.no_polisi}</span>
+                        ${st.isPaid ? '<span class="text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded">✓ LUNAS</span>' : ''}
                       </div>
-                      <div class="text-[10px] text-red-400 font-semibold truncate">${v.tipe_mobil}</div>
-                      <div class="text-[9px] text-slate-400 truncate">${st.sub}</div>
+                      <div class="text-xs text-red-400 font-semibold truncate">${v.tipe_mobil}</div>
+                      <div class="text-[10px] text-slate-400 truncate">${st.sub}</div>
                     </div>
-                    ${renderCarVisual(v.tipe_mobil, false, 'h-6')}
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-7')}
                   </div>`;
-                }).join('') || '<p class="text-[11px] text-slate-600 italic">Kosong</p>'}
+                }).join('') || '<p class="text-xs text-slate-600 italic">Kosong</p>'}
               </div>
             </div>`;
           }).join('')}
         </div>`;
       } else if (currentTheme === '5') {
-        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto">
+        container.innerHTML = `<div class="grid ${scale.cardCols} ${scale.gap} w-full max-w-[1600px] mx-auto page-transition">
           ${visibleVehicles.map(v => {
             const st = getStageInfo(v);
             const deg = Math.round((st.pct / 100) * 360);
-            const ringOuter = scale.isCompact ? 'w-10 h-10' : 'w-14 h-14';
-            const ringInner = scale.isCompact ? 'w-7 h-7 text-[10px]' : 'w-10 h-10 text-xs';
-            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex items-center justify-between gap-2.5">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="${ringOuter} rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#ef4444 ${deg}deg, #1e293b 0deg);">
-                  <div class="${ringInner} bg-[#080c17] rounded-full flex items-center justify-center font-black">${st.pct}%</div>
+            return `<div class="bg-[#111726] border ${st.isPaid ? 'border-emerald-500/40' : 'border-slate-800'} rounded-xl ${scale.cardPad} flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style="background: conic-gradient(#ef4444 ${deg}deg, #1e293b 0deg);">
+                  <div class="w-9 h-9 text-xs bg-[#080c17] rounded-full flex items-center justify-center font-black">${st.pct}%</div>
                 </div>
                 <div class="min-w-0">
-                  <div class="font-black ${scale.isCompact ? 'text-sm' : 'text-base'} truncate">${v.no_polisi} <span class="text-[11px] font-normal text-slate-400">(${v.tipe_mobil})</span></div>
-                  <div class="flex items-center gap-1 mt-0.5 flex-wrap">
-                    ${st.isPaid ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                    <span class="px-2 py-0.5 rounded text-[9px] font-bold border ${st.badge}">${st.label}</span>
+                  <div class="font-black text-base truncate font-mono">${v.no_polisi} <span class="text-xs font-sans font-normal text-slate-400">(${v.tipe_mobil})</span></div>
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-2.5 py-0.5 rounded text-[10px] font-bold border ${st.badge}">${st.label}</span>
                   </div>
-                  <p class="text-[10px] text-slate-400 mt-0.5 truncate">${st.sub}</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5 truncate">${st.sub}</p>
                 </div>
               </div>
               ${renderCarVisual(v.tipe_mobil, !st.isFinished, scale.carSize)}
@@ -672,36 +722,36 @@
       } else {
         const ready = visibleVehicles.filter(v => getStageInfo(v).step >= 3);
         const inWork = visibleVehicles.filter(v => getStageInfo(v).step < 3);
-        container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full max-w-[1600px] mx-auto h-full">
-          <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/30 rounded-2xl p-3 overflow-y-auto">
-            <h2 class="text-emerald-400 font-extrabold text-xs md:text-sm mb-2">SIAP KASIR, LUNAS & PROSES CUCI (${ready.length})</h2>
-            <div class="space-y-1.5">
+        container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3.5 w-full max-w-[1600px] mx-auto h-full page-transition">
+          <div class="bg-gradient-to-br from-[#102622] to-[#111624] border border-emerald-500/30 rounded-2xl p-3.5 overflow-y-auto">
+            <h2 class="text-emerald-400 font-extrabold text-sm mb-2.5">SIAP KASIR, LUNAS & PROSES CUCI (${ready.length})</h2>
+            <div class="space-y-2">
               ${ready.map(v => {
                 const st = getStageInfo(v);
-                return `<div class="bg-[#080c17] border border-slate-800 px-3 py-2 rounded-xl flex justify-between items-center gap-2">
-                  <div class="flex items-center gap-2">
-                    ${renderCarVisual(v.tipe_mobil, false, 'h-7')}
-                    <div><div class="text-sm font-black">${v.no_polisi}</div><div class="text-[10px] text-slate-400">${v.tipe_mobil}</div></div>
+                return `<div class="bg-[#080c17] border border-slate-800 px-3.5 py-2.5 rounded-xl flex justify-between items-center gap-2">
+                  <div class="flex items-center gap-2.5">
+                    ${renderCarVisual(v.tipe_mobil, false, 'h-8')}
+                    <div><div class="text-base font-black font-mono">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil}</div></div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
-                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
-                    <span class="px-2.5 py-0.5 rounded text-[10px] font-bold border ${st.badge}">${st.label}</span>
+                    ${st.isPaid ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ LUNAS</span>' : ''}
+                    <span class="px-3 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</span>
                   </div>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-xs">Belum ada unit selesai servis.</p>'}
             </div>
           </div>
-          <div class="bg-[#111726] border border-slate-800 rounded-2xl p-3 overflow-y-auto">
-            <h2 class="text-blue-400 font-extrabold text-xs md:text-sm mb-2">DALAM PENGERJAAN & FINAL INSPECTION (${inWork.length})</h2>
-            <div class="space-y-1.5">
+          <div class="bg-[#111726] border border-slate-800 rounded-2xl p-3.5 overflow-y-auto">
+            <h2 class="text-blue-400 font-extrabold text-sm mb-2.5">DALAM PENGERJAAN & FINAL INSPECTION (${inWork.length})</h2>
+            <div class="space-y-2">
               ${inWork.map(v => {
                 const st = getStageInfo(v);
-                return `<div class="bg-[#080c17] border border-slate-800 px-3 py-2 rounded-xl flex justify-between items-center">
-                  <div class="flex items-center gap-2">
-                    ${renderCarVisual(v.tipe_mobil, true, 'h-7')}
-                    <div><div class="text-sm font-bold">${v.no_polisi}</div><div class="text-[10px] text-slate-400">${v.tipe_mobil} • ${st.sub}</div></div>
+                return `<div class="bg-[#080c17] border border-slate-800 px-3.5 py-2.5 rounded-xl flex justify-between items-center">
+                  <div class="flex items-center gap-2.5">
+                    ${renderCarVisual(v.tipe_mobil, true, 'h-8')}
+                    <div><div class="text-base font-bold font-mono">${v.no_polisi}</div><div class="text-xs text-slate-400">${v.tipe_mobil} • ${st.sub}</div></div>
                   </div>
-                  <span class="px-2.5 py-0.5 rounded text-[10px] font-bold border ${st.badge}">${st.label}</span>
+                  <span class="px-3 py-0.5 rounded text-xs font-bold border ${st.badge}">${st.label}</span>
                 </div>`;
               }).join('') || '<p class="text-slate-500 text-xs">Semua unit sudah selesai dikerjakan.</p>'}
             </div>
