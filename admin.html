@@ -23,7 +23,39 @@
     body { background-color: #080c17; color: #f8fafc; }
   </style>
 </head>
-<body class="min-h-screen p-3 md:p-6 font-sans antialiased">
+<body class="min-h-screen p-3 md:p-6 font-sans antialiased relative">
+
+  <!-- MODAL LOGIN KUSTOM YANG DINAMIS -->
+  <div id="loginModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#111726] border border-slate-800 w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+      <div class="text-center space-y-1">
+        <div class="inline-flex bg-red-600/20 text-red-500 p-3 rounded-xl mb-1">
+          🔐
+        </div>
+        <h2 class="text-base font-black text-white">Autentikasi Admin</h2>
+        <p class="text-slate-400 text-xs">Masukkan password untuk mengakses panel kontrol.</p>
+      </div>
+
+      <form onsubmit="handleLogin(event)" class="space-y-3">
+        <div>
+          <input type="password" id="adminPasswordInput" required placeholder="Masukkan Password (Citra123)" 
+                 class="w-full bg-[#080c17] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500 font-mono text-center tracking-widest">
+          <p id="loginErrorMsg" class="text-red-400 text-[10px] text-center mt-1.5 hidden">Password salah! Silakan coba lagi.</p>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <a href="index.html" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2.5 rounded-xl text-center transition">
+            Kembali
+          </a>
+          <button type="submit" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2.5 rounded-xl shadow-lg shadow-red-600/25 transition">
+            Masuk
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- KONTEN UTAMA DASHBOARD -->
   <div class="max-w-5xl mx-auto space-y-4">
 
     <!-- Header Panel Admin -->
@@ -135,19 +167,29 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxeXJuaWxpaGxsaHB4ZG53dnNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNTYzNTcsImV4cCI6MjExMDczMjM1N30.iTl94p4PUBPZ1PaACwkMIKExT8lGy0ERY54ua9foPCc';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Cek Status Login dengan Modal Kustom
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-      const pwd = prompt('Masukkan Password Admin (Citra123):');
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('adminPasswordInput').value;
+      const errorMsg = document.getElementById('loginErrorMsg');
+
       if (pwd === 'Citra123') {
         localStorage.setItem('isLoggedIn', 'true');
+        document.getElementById('loginModal').classList.add('hidden');
+        fetchVehicles();
       } else {
-        alert('Password salah!');
-        window.location.href = 'index.html';
+        errorMsg.classList.remove('hidden');
+        document.getElementById('adminPasswordInput').value = '';
       }
     }
 
     function handleLogout() {
       localStorage.removeItem('isLoggedIn');
-      window.location.href = 'index.html';
+      location.reload();
     }
 
     async function fetchVehicles() {
@@ -235,17 +277,18 @@
       }
     }
 
-    fetchVehicles();
-    db.channel('admin-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, fetchVehicles).subscribe();
+    // Hanya ambil data jika sudah login
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      fetchVehicles();
+      db.channel('admin-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'pkb_service' }, fetchVehicles).subscribe();
+    }
   </script>
 
-  <!-- Registrasi Service Worker untuk PWA & PWABuilder -->
+  <!-- Registrasi Service Worker untuk PWA -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((reg) => console.log('Service Worker terdaftar:', reg.scope))
-          .catch((err) => console.error('Gagal daftar Service Worker:', err));
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error(err));
       });
     }
   </script>
